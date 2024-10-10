@@ -17,9 +17,7 @@
   </p>
 </div>
 
-<!-- DEMO VIDEO EMBED -->
-
-https://github.com/user-attachments/assets/336a3117-d135-4a13-be5b-be29b5f957cf
+[![DexcomDesktopApplication Image][app-image]](https://github.com/MatthewBlam/Dexcom-4-Desktop)
 
 <!-- CONTACT -->
 
@@ -30,4 +28,4 @@ Matthew Blam - blammatthew@gmail.com
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-[demo-video]: DexcomDemo.mp4
+[app-image]: dexcom_app.png
