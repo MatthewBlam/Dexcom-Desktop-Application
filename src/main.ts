@@ -1,4 +1,5 @@
 // TODO: disable refresh and other maybe unwanted user commands
+// Any comments
 // Loading indicator on startup (blank screen while logging in)
 // Several displays support?
 // App menu tray thing?
@@ -14,15 +15,14 @@ import {
     screen,
     powerMonitor,
 } from "electron";
-import path from "path";
 const { spawn } = require("child_process");
 const Store = require("electron-store");
-const fs = require("fs");
+import path from "path";
 
-// Init globals
-var python: Python;
-var win: BrowserWindow;
-var widget: BrowserWindow;
+// Globals
+var Python: python;
+var Win: BrowserWindow;
+var Widget: BrowserWindow;
 var widgetOpen: boolean = false;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -30,73 +30,65 @@ if (require("electron-squirrel-startup")) {
     app.quit();
 }
 
-// Send message to render porcess
 function sendRender(message: object) {
-    win.webContents.send("toRender", JSON.stringify(message));
+    Win.webContents.send("toRender", JSON.stringify(message));
 }
 
 function sendWidget(message: object) {
     if (widgetOpen) {
-        widget.webContents.send("toRender", JSON.stringify(message));
+        Widget.webContents.send("toRender", JSON.stringify(message));
     }
 }
 
-// Receive message from render process
 ipcMain.on("toMain", (event, args) => {
-    var values = JSON.parse(args);
-    var keys = Object.keys(values);
-    var call = keys[0];
+    const values = JSON.parse(args);
+    const keys = Object.keys(values);
+    const call = keys[0];
+
+    if (call == "TERMINATE") {
+        storage.resetCredentials();
+        Python.end();
+    }
 
     if (call == "DOM") {
-        // Start python script if credentials retrieved from storage
-        var storedCredentials: Credentials = storage.getCredentials();
+        sendRender({ INIT_SETTINGS: storage.getSettings() });
+        const storedCredentials = storage.getCredentials();
         if (storedCredentials) {
             console.log("Logging in with stored:", storedCredentials.user);
-            if (python instanceof Python) {
-                python.end();
+            if (Python instanceof python) {
+                Python.end();
             }
-            python = new Python(storedCredentials);
-            python.start();
+            Python = new python(storedCredentials);
+            Python.start();
         }
-
-        var storedSettings: Settings = storage.getSettings();
-        sendRender({ INIT_SETTINGS: storedSettings });
     }
 
     // Attempt to login by starting python script
     if (call == "LOGIN") {
-        var credentials = values["LOGIN"];
+        const credentials = values["LOGIN"];
         console.log("Logging in with:", credentials.user);
-        if (python instanceof Python) {
-            python.end();
+        if (Python instanceof python) {
+            Python.end();
         }
-        python = new Python(credentials);
-        python.start();
+        Python = new python(credentials);
+        Python.start();
     }
 
     if (call == "INIT_WIDGET_SETTINGS") {
-        var settings: Settings = storage.getSettings();
-        sendWidget({ SETTINGS: settings });
+        sendWidget({ SETTINGS: storage.getSettings() });
     }
 
     if (call == "GET_SETTINGS") {
-        var settings: Settings = storage.getSettings();
-        sendRender({ OPEN_SETTINGS: settings });
-        sendWidget({ SETTINGS: settings });
+        const settingsGet = storage.getSettings();
+        sendRender({ OPEN_SETTINGS: settingsGet });
+        sendWidget({ SETTINGS: settingsGet });
     }
 
     if (call == "STORE_SETTINGS") {
-        var settings: Settings = values["STORE_SETTINGS"];
-        console.log("STORING", settings);
-        storage.saveSettings(settings);
-        sendWidget({ SETTINGS: settings });
-    }
-
-    // Send kill signal to python script
-    if (call == "TERMINATE") {
-        storage.resetCredentials();
-        python.end();
-        // killPython();
+        const settingsStore = values["STORE_SETTINGS"];
+        console.log("STORING", settingsStore);
+        storage.saveSettings(settingsStore);
+        sendWidget({ SETTINGS: settingsStore });
     }
 
     if (call == "OPEN_WIDGET") {
@@ -104,7 +96,7 @@ ipcMain.on("toMain", (event, args) => {
     }
 
     if (call == "CLOSE_WIDGET") {
-        widget.close();
+        Widget.close();
     }
 
     if (call == "GET_WIDGET") {
@@ -140,7 +132,6 @@ ipcMain.on("toMain", (event, args) => {
     }
 });
 
-// Interfaces
 interface Bounds {
     width: number;
     height: number;
@@ -172,10 +163,9 @@ interface Reading {
     date_time: Array<string>;
 }
 
-// Manage storage of app data
 class Storage {
     store = new Store();
-    // Retrieve window dimensions
+
     getWinBounds(): Bounds {
         const bounds: Bounds | null = this.store.get("win-bounds");
         if (!bounds) {
@@ -185,11 +175,11 @@ class Storage {
         }
         return bounds;
     }
-    // Store window dimensions
+
     saveWinBounds(bounds: Bounds) {
         this.store.set("win-bounds", bounds);
     }
-    // Retrieve widget position
+
     getWidgetPosition() {
         const position = this.store.get("widget-position");
         if (!position) {
@@ -199,11 +189,11 @@ class Storage {
         }
         return position;
     }
-    // Store widget position
+
     saveWidgetPosition(position: Array<string>) {
         this.store.set("widget-position", position);
     }
-    // Retrieve if widget open
+
     getWidgetOpen() {
         const open = this.store.get("widget-open");
         if (open === null || open === undefined) {
@@ -212,15 +202,15 @@ class Storage {
         }
         return open;
     }
-    // Store if widget open
+
     saveWidgetOpen(open: boolean) {
         this.store.set("widget-open", open);
     }
-    // Store current reading
+
     saveCurrentReading(reading: Reading) {
         this.store.set("current-reading", reading);
     }
-    // Retrieve current reading
+
     getCurrentReading() {
         const reading = this.store.get("current-reading");
         if (!reading) {
@@ -239,7 +229,7 @@ class Storage {
         }
         return reading;
     }
-    // Retrieve login info
+
     getCredentials(): Credentials | undefined {
         const credentials: Credentials | undefined =
             this.store.get("credentials");
@@ -248,20 +238,20 @@ class Storage {
             sendRender({ AUTH_ERROR: null });
             return undefined;
         }
-        console.log("RETRIEVED:", credentials);
+        console.log("RETRIEVED:", credentials.user);
         return credentials;
     }
-    // Store login info
+
     saveCredentials(credentials: Credentials) {
         console.log("STORING", credentials.user);
         this.store.set("credentials", credentials);
     }
-    // Wipe login info
+
     resetCredentials() {
         console.log("WIPING CREDENTIALS");
         this.store.delete("credentials");
     }
-    // Retrieve settings
+
     getSettings(): Settings | undefined {
         const settings: Settings | undefined = this.store.get("settings");
         if (!settings) {
@@ -278,7 +268,7 @@ class Storage {
         }
         return settings;
     }
-    // Store settings
+
     saveSettings(settings: Settings) {
         console.log("STORING", settings);
         this.store.set("settings", settings);
@@ -297,20 +287,24 @@ function getID() {
     return ID;
 }
 
-class Python {
+class python {
     Process: typeof spawn;
-    running: boolean;
+    running: boolean = false;
     credentials: Credentials;
 
     constructor(cred: Credentials) {
         this.credentials = cred;
-        this.running = false;
+    }
+
+    send(message: any) {
+        this.Process.stdin.write(`${getID()} ${message}`);
     }
 
     start() {
         if (this.running) {
             return;
         }
+
         this.Process = spawn(
             "./dexcom",
             [
@@ -323,32 +317,36 @@ class Python {
             }
         );
         this.running = true;
-        this.Process.stdout.on("data", (pymessage: any) => {
-            pymessage = pymessage.toString().trim();
-            console.log("python:", pymessage);
-            if (pymessage.slice(0, 9).includes("READING")) {
-                console.log("PARSING:", pymessage);
-                var reading: Reading = JSON.parse(
-                    pymessage.replaceAll("READING: ", "").replaceAll("'", '"')
+
+        this.Process.stdout.on("data", (message: any) => {
+            message = message.toString().trim();
+            console.log("python:", message);
+
+            if (message.slice(0, 9).includes("READING")) {
+                console.log("PARSING:", message);
+                const reading: Reading = JSON.parse(
+                    message.replaceAll("READING: ", "").replaceAll("'", '"')
                 );
                 sendRender({ READING: reading });
                 sendWidget({ READING: reading });
             }
-            // Save login and signal renderer
-            if (pymessage.includes("AUTH SUCCESS")) {
+
+            if (message.includes("AUTH SUCCESS")) {
                 storage.saveCredentials(this.credentials);
                 sendRender({ CREDENTIALS: null });
             }
-            // Wipe login and signal renderer
-            if (pymessage.includes("AUTH ERROR")) {
+
+            if (message.includes("AUTH ERROR")) {
                 storage.resetCredentials();
-                sendRender({ AUTH_ERROR: pymessage.slice(12) });
+                sendRender({ AUTH_ERROR: message.slice(12) });
             }
         });
-        this.Process.stderr.on("data", (err: any) => {
-            console.log("PYTHON ERROR\n" + err.toString());
+
+        this.Process.stderr.on("data", (error: any) => {
+            console.log("PYTHON ERROR\n" + error.toString());
             // send error to render
         });
+
         this.Process.on("close", (code: any) => {
             this.running = false;
             console.log(`PYTHON CLOSED, Code ${code}`);
@@ -359,8 +357,9 @@ class Python {
         if (!this.running) {
             return;
         }
+
         console.log("TERMINATING PYTHON");
-        this.Process.stdin.write(`${getID()} TERMINATE`);
+        this.send("TERMINATE");
         var i = 0;
         const interval = setInterval(() => {
             i += 1;
@@ -375,44 +374,43 @@ class Python {
             if (i > 20) {
                 this.Process.kill();
                 clearInterval(interval);
-                // something went wrong
+                // something went wrong (timeout, python still running (this.running is true))
             }
         }, 1000);
     }
 
     pause() {
-        this.Process.stdin.write(`${getID()} PAUSE`);
+        this.send("PAUSE");
     }
 
     resume() {
-        this.Process.stdin.write(`${getID()} RESUME`);
+        this.send("RESUME");
     }
 }
 
 powerMonitor.on("suspend", () => {
-    console.log("The system is going to sleep");
-    python.pause();
+    console.log("\nThe system is going to sleep");
+    Python.pause();
 });
 
 powerMonitor.on("resume", () => {
-    console.log("The system is resuming");
-    python.resume();
+    console.log("\nThe system is resuming");
+    Python.resume();
 });
 
 powerMonitor.on("lock-screen", () => {
-    console.log("The system is about to be locked");
-    python.pause();
+    console.log("\nThe system is about to be locked");
+    Python.pause();
 });
 
 powerMonitor.on("unlock-screen", () => {
-    console.log("The system is unlocked");
-    python.resume();
+    console.log("\nThe system is unlocked");
+    Python.resume();
 });
 
 const createWindow = () => {
-    // Create the browser window
-    const winBounds: Bounds = storage.getWinBounds();
-    win = new BrowserWindow({
+    const winBounds = storage.getWinBounds();
+    Win = new BrowserWindow({
         minWidth: 450,
         minHeight: 400,
         width: winBounds.width,
@@ -429,11 +427,10 @@ const createWindow = () => {
         },
     });
 
-    // Load the index.html of the app
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-        win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+        Win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     } else {
-        win.loadFile(
+        Win.loadFile(
             path.join(
                 __dirname,
                 `../main/renderer/${MAIN_WINDOW_VITE_NAME}/index.html`
@@ -441,12 +438,10 @@ const createWindow = () => {
         );
     }
 
-    // Display window
-    win.show();
+    Win.show();
 
-    // Listener to save window size
-    win.on("resized", () => {
-        var bounds = win.getBounds();
+    Win.on("resized", () => {
+        const bounds = Win.getBounds();
         storage.saveWinBounds({ width: bounds.width, height: bounds.height });
     });
 };
@@ -455,7 +450,7 @@ const createWidget = () => {
     if (!widgetOpen) {
         const primaryDisplay = screen.getPrimaryDisplay();
         const { width, height } = primaryDisplay.workAreaSize;
-        widget = new BrowserWindow({
+        Widget = new BrowserWindow({
             width: width,
             height: height,
             center: true,
@@ -474,9 +469,9 @@ const createWidget = () => {
         });
 
         if (WIDGET_WINDOW_VITE_DEV_SERVER_URL) {
-            widget.loadURL(WIDGET_WINDOW_VITE_DEV_SERVER_URL);
+            Widget.loadURL(WIDGET_WINDOW_VITE_DEV_SERVER_URL);
         } else {
-            widget.loadFile(
+            Widget.loadFile(
                 path.join(
                     __dirname,
                     `../widget/renderer/${WIDGET_WINDOW_VITE_NAME}/index.html`
@@ -485,12 +480,10 @@ const createWidget = () => {
         }
 
         widgetOpen = true;
+        Win.focus();
 
-        win.focus();
-
-        widget.on("close", () => {
+        Widget.on("close", () => {
             widgetOpen = false;
-            // sendRender({ CLOSE_WIDGET: null });
         });
     }
 };
@@ -511,10 +504,10 @@ app.on("window-all-closed", () => {
 
 // Make sure python process closes
 app.on("before-quit", (e) => {
-    if (python instanceof Python) {
-        if (python.running) {
+    if (Python instanceof python) {
+        if (Python.running) {
             e.preventDefault;
-            python.end();
+            Python.end();
         }
     }
 });

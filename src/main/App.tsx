@@ -1,17 +1,17 @@
 import { StrictMode, useCallback, useEffect, useState, useRef } from "react";
+import { useSettingsContext } from "../contexts/SettingsContext";
+import { useHistoryContext } from "../contexts/HistoryContext";
 import { DraggableTopBar } from "../components/DraggableTopBar";
-import { Dimmer } from "../components/Dimmer";
 import { RootLayout } from "../components/RootLayout";
 import { ErrorToast } from "../components/ErrorToast";
 import { Settings } from "../components/Settings";
-import { Login } from "./Login";
+import { Dimmer } from "../components/Dimmer";
+import { motion, useAnimate } from "framer-motion";
+import { twMerge } from "tailwind-merge";
 import { Display } from "./Display";
+import { Login } from "./Login";
 import "inter-ui/inter.css";
 import clsx from "clsx";
-import { twMerge } from "tailwind-merge";
-import { motion, useAnimate } from "framer-motion";
-import { useSettingsContext } from "../contexts/SettingsContext";
-import { useHistoryContext } from "../contexts/HistoryContext";
 
 interface Settings {
     sensor: "G6" | "G7";
@@ -38,104 +38,7 @@ const App = () => {
         window.api.send("toMain", JSON.stringify(message));
     }, []);
 
-    const [LOADED, setLOADED] = useState<boolean>(false);
-    const [CREDENTIALS, setCREDENTIALS] = useState<boolean>(false);
-    const [userVal, setUserVal] = useState<string>("");
-    const [passwordVal, setPasswordVal] = useState<string>("");
-    const [ousChecked, setOusChecked] = useState<boolean>(false);
-    const [disableForm, setDisableForm] = useState<boolean>(false);
-    const [errorText, setErrorText] = useState<string>("Error");
-    const [errorActive, setErrorActive] = useState<boolean>(false);
-    const userChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setUserVal(event.target.value);
-    };
-    const passwordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPasswordVal(event.target.value);
-    };
-    const ousChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setOusChecked(event.target.checked);
-    };
-    const loginClick = () => {
-        if (userVal == "" || passwordVal == "") {
-            setErrorText("Please provide both email and password");
-            setErrorActive(true);
-            setCREDENTIALS(undefined);
-            setDisableForm(false);
-            return;
-        }
-
-        setErrorActive(false);
-        setDisableForm(true);
-        sendMain({
-            LOGIN: { user: userVal, password: passwordVal, ous: ousChecked },
-        });
-    };
-    const logoutClick = () => {
-        sendMain({ TERMINATE: "TERMINATE" });
-        if (widgetOpen) {
-            toggleWidget();
-        }
-        sendMain({ STORE_WIDGET_OPEN: false });
-        setErrorActive(false);
-        setDisableForm(false);
-        setCREDENTIALS(false);
-        sessionStorage.clear();
-        // Add loading or smth until hearing back from python KILLED_PYTHON
-    };
-
-    const [loginOpen, setLoginOpen] = useState<boolean>(true);
-    const [loginScope, loginAnimate] = useAnimate();
-    const [displayOpen, setDisplayOpen] = useState<boolean>(true);
-    const [displayScope, displayAnimate] = useAnimate();
-    function closeLoginPage() {
-        loginAnimate(
-            loginScope.current,
-            { x: "-200%" },
-            { type: "tween", ease: "easeInOut" }
-        );
-        setLoginOpen(false);
-    }
-    function closeDisplayPage() {
-        if (widgetOpen) {
-            toggleWidget();
-        }
-        displayAnimate(
-            displayScope.current,
-            { x: "200%" },
-            { type: "tween", ease: "easeInOut" }
-        );
-        setDisplayOpen(false);
-    }
-    function openLoginPage() {
-        if (widgetOpen) {
-            toggleWidget();
-        }
-        setDimmerOn(false);
-        setUserVal("");
-        setPasswordVal("");
-        setOusChecked(false);
-        loginAnimate(
-            loginScope.current,
-            { x: "-50%" },
-            { type: "tween", ease: "easeInOut" }
-        );
-        closeDisplayPage();
-        setLoginOpen(true);
-    }
-    function openDisplayPage() {
-        displayAnimate(
-            displayScope.current,
-            { x: "-50%" },
-            { type: "tween", ease: "easeInOut" }
-        );
-        closeLoginPage();
-        setDisplayOpen(true);
-    }
-
-    const [dimmerOn, setDimmerOn] = useState<boolean>(false);
-
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
-
     const {
         sensorSetting,
         setSensorSetting,
@@ -199,6 +102,129 @@ const App = () => {
         setSettings(settings);
     }
 
+    function toggleWidget() {
+        if (!widgetOpen) {
+            setWidgetOpen(true);
+            sendMain({ OPEN_WIDGET: null });
+        } else {
+            setWidgetOpen(false);
+            sendMain({ CLOSE_WIDGET: null });
+        }
+    }
+
+    const hasPageRendered = useRef(false);
+    useEffect(() => {
+        if (!hasPageRendered.current) {
+            hasPageRendered.current = true;
+            return;
+        }
+        sendMain({ STORE_WIDGET_OPEN: widgetOpen });
+    }, [widgetOpen]);
+
+    const [LOADED, setLOADED] = useState<boolean>(false);
+    const [CREDENTIALS, setCREDENTIALS] = useState<boolean>(false);
+
+    const [userVal, setUserVal] = useState<string>("");
+    const [passwordVal, setPasswordVal] = useState<string>("");
+    const [ousChecked, setOusChecked] = useState<boolean>(false);
+    const [disableForm, setDisableForm] = useState<boolean>(false);
+    const [errorText, setErrorText] = useState<string>("Error");
+    const [errorActive, setErrorActive] = useState<boolean>(false);
+
+    const userChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUserVal(event.target.value);
+    };
+
+    const passwordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPasswordVal(event.target.value);
+    };
+
+    const ousChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setOusChecked(event.target.checked);
+    };
+
+    const loginClick = () => {
+        if (userVal == "" || passwordVal == "") {
+            setErrorText("Please provide both email and password");
+            setErrorActive(true);
+            setCREDENTIALS(undefined);
+            setDisableForm(false);
+            return;
+        }
+        setErrorActive(false);
+        setDisableForm(true);
+        sendMain({
+            LOGIN: { user: userVal, password: passwordVal, ous: ousChecked },
+        });
+    };
+
+    const logoutClick = () => {
+        sendMain({ TERMINATE: "TERMINATE" });
+        if (widgetOpen) {
+            toggleWidget();
+        }
+        sendMain({ STORE_WIDGET_OPEN: false });
+        setErrorActive(false);
+        setDisableForm(false);
+        setCREDENTIALS(false);
+        sessionStorage.clear();
+        // Add loading or smth until hearing back from python KILLED_PYTHON
+    };
+
+    const [dimmerOn, setDimmerOn] = useState<boolean>(false);
+    const [loginOpen, setLoginOpen] = useState<boolean>(true);
+    const [loginScope, loginAnimate] = useAnimate();
+    const [displayOpen, setDisplayOpen] = useState<boolean>(true);
+    const [displayScope, displayAnimate] = useAnimate();
+
+    function closeLoginPage() {
+        loginAnimate(
+            loginScope.current,
+            { x: "-200%" },
+            { type: "tween", ease: "easeInOut" }
+        );
+        setLoginOpen(false);
+    }
+
+    function closeDisplayPage() {
+        if (widgetOpen) {
+            toggleWidget();
+        }
+        displayAnimate(
+            displayScope.current,
+            { x: "200%" },
+            { type: "tween", ease: "easeInOut" }
+        );
+        setDisplayOpen(false);
+    }
+
+    function openLoginPage() {
+        if (widgetOpen) {
+            toggleWidget();
+        }
+        setDimmerOn(false);
+        setUserVal("");
+        setPasswordVal("");
+        setOusChecked(false);
+        loginAnimate(
+            loginScope.current,
+            { x: "-50%" },
+            { type: "tween", ease: "easeInOut" }
+        );
+        closeDisplayPage();
+        setLoginOpen(true);
+    }
+
+    function openDisplayPage() {
+        displayAnimate(
+            displayScope.current,
+            { x: "-50%" },
+            { type: "tween", ease: "easeInOut" }
+        );
+        closeLoginPage();
+        setDisplayOpen(true);
+    }
+
     const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
     function openConfirm() {
@@ -213,26 +239,6 @@ const App = () => {
         setConfirmOpen(false);
     }
 
-    function toggleWidget() {
-        if (!widgetOpen) {
-            setWidgetOpen(true);
-            sendMain({ OPEN_WIDGET: null });
-        } else {
-            setWidgetOpen(false);
-            sendMain({ CLOSE_WIDGET: null });
-        }
-    }
-
-    const hasPageRendered = useRef(false);
-
-    useEffect(() => {
-        if (!hasPageRendered.current) {
-            hasPageRendered.current = true;
-            return;
-        }
-        sendMain({ STORE_WIDGET_OPEN: widgetOpen });
-    }, [widgetOpen]);
-
     const [currentReading, setCurrentReading] = useState<Reading>({
         id: "Unavailable",
         value: -1,
@@ -243,7 +249,6 @@ const App = () => {
         trend_arrow: "Unavailable",
         date_time: ["Unavailable", "Unavailable"],
     });
-
     const { historyItems, setHistoryItems } = useHistoryContext();
 
     useEffect(() => {
@@ -251,7 +256,6 @@ const App = () => {
         closeDisplayPage();
 
         sendMain({ DOM: null });
-
         sendMain({ GET_WIDGET_OPEN: null });
 
         var session = sessionStorage.getItem("session");
@@ -262,9 +266,23 @@ const App = () => {
         }
 
         window.api.receive("toRender", (data: string) => {
-            var values = JSON.parse(data);
-            var keys = Object.keys(values);
-            var call = keys[0];
+            const values = JSON.parse(data);
+            const keys = Object.keys(values);
+            const call = keys[0];
+
+            if (call == "AUTH_ERROR") {
+                setLOADED(true);
+                const error = values["AUTH_ERROR"];
+                if (error) {
+                    setErrorText(error);
+                    setErrorActive(true);
+                }
+                setCREDENTIALS(undefined);
+                setUserVal("");
+                setPasswordVal("");
+                setDisableForm(false);
+                openLoginPage();
+            }
 
             if (call == "CREDENTIALS") {
                 setLOADED(true);
@@ -273,24 +291,20 @@ const App = () => {
                 sessionStorage.setItem("session", "true");
             }
 
+            if (call == "INIT_SETTINGS") {
+                setSettings(values["INIT_SETTINGS"]);
+                setIsSettingsLoaded(true);
+            }
+
             if (call == "OPEN_SETTINGS") {
                 setSettings(values["OPEN_SETTINGS"]);
                 setDimmerOn(true);
                 setSettingsOpen(true);
             }
 
-            if (call == "INIT_SETTINGS") {
-                setSettings(values["INIT_SETTINGS"]);
-                setIsSettingsLoaded(true);
-            }
-
             if (call == "KILLED_PYTHON") {
                 // Close loading state
                 openLoginPage();
-            }
-
-            if (call == "CLOSE_WIDGET") {
-                setWidgetOpen(false);
             }
 
             if (call == "WIDGET_OPEN") {
@@ -303,25 +317,14 @@ const App = () => {
                 }
             }
 
-            if (call == "AUTH_ERROR") {
-                setLOADED(true);
-                var error = values["AUTH_ERROR"];
-                if (error) {
-                    setErrorText(values["AUTH_ERROR"]);
-                    setErrorActive(true);
-                }
-                setCREDENTIALS(undefined);
-                setUserVal("");
-                setPasswordVal("");
-                setDisableForm(false);
-                openLoginPage();
+            if (call == "CLOSE_WIDGET") {
+                setWidgetOpen(false);
             }
 
             if (call == "READING") {
                 const newReading = values["READING"];
                 console.log("Received Reading:", newReading);
                 setCurrentReading(newReading);
-                console.log("historyItems", historyItems);
                 setHistoryItems((historyItems: string | any[]) =>
                     [newReading].concat(historyItems)
                 );
@@ -362,6 +365,7 @@ const App = () => {
                                 : true
                         }></Login>
                 </motion.div>
+
                 <motion.div
                     ref={displayScope}
                     className={twMerge(
@@ -390,7 +394,9 @@ const App = () => {
                         setErrorActive(false);
                     }}></ErrorToast>
             </RootLayout>
+
             <Dimmer active={dimmerOn}></Dimmer>
+
             {isSettingsLoaded && (
                 <Settings
                     active={settingsOpen}
