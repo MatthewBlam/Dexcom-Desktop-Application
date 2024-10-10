@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Dexcom</title>
+        <style>
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+            }
+            html {
+                -webkit-app-region: drag;
+            }
+            #container {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            #loader {
+                opacity: 0;
+                transition: 1s;
+                margin-top: -10px;
+                width: 50px;
+                aspect-ratio: 1;
+                border-radius: 50%;
+                background: radial-gradient(farthest-side, #32a612 94%, #0000)
+                        top/8px 8px no-repeat,
+                    conic-gradient(#0000 30%, #32a612);
+                -webkit-mask: radial-gradient(
+                    farthest-side,
+                    #0000 calc(100% - 8px),
+                    #000 0
+                );
+                animation: l13 1s infinite linear;
+            }
+            @keyframes l13 {
+                100% {
+                    transform: rotate(1turn);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="loader"></div>
+        </div>
+        <script type="text/javascript">
+            window.onload = (event) => {
+                document.getElementById("loader").style.opacity = 1;
+            };
+        </script>
+
+        <script type="module" src="./render_renderer.ts"></script>
+    </body>
+</html>

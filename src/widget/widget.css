@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+    min-width: 100%;
+    width: 100%;
+    min-height: 100%;
+    height: 100%;
+}
+
+* {
+    -webkit-app-region: no-drag;
+}
+
+:root {
+    --dscale: 50%;
+}
