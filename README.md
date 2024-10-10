@@ -17,7 +17,7 @@
   </p>
 </div>
 
-[![DexcomDesktopApplication Image][app-image]](https://github.com/MatthewBlam/Dexcom-4-Desktop)
+[![DexcomDesktopApplication Image][app-image]](https://github.com/MatthewBlam/Dexcom-Desktop-Application)
 
 <!-- CONTACT -->
 
