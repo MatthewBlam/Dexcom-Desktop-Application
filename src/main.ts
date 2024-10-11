@@ -1,5 +1,4 @@
 // TODO: disable refresh and other maybe unwanted user commands
-// App menu tray thing?
 // App Logo
 // Windows compatibility
 // Build
@@ -552,11 +551,11 @@ var tray: any;
 var trayMenu: any;
 
 app.whenReady().then(() => {
-    tray = new Tray(
-        nativeImage
-            .createFromPath("./dexcomSVG/app-logo-tray.png")
-            .resize({ width: 13 })
-    );
+    const icon = nativeImage
+        .createFromPath("./dexcomSVG/app-logo-trayTemplate.png")
+        .resize({ width: 13 });
+    icon.setTemplateImage(true);
+    tray = new Tray(icon);
 
     trayMenu = Menu.buildFromTemplate([
         {
