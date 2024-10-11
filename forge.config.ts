@@ -9,6 +9,8 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 
 const config: ForgeConfig = {
     packagerConfig: {
+        name: "Dexcom Desktop Application",
+        icon: "dexcom_graphics/app-icon",
         asar: true,
     },
     rebuildConfig: {},
