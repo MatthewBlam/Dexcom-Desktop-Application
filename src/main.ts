@@ -1,6 +1,4 @@
 // TODO: disable refresh and other maybe unwanted user commands
-// Native menu bar apple
-// Several displays support?
 // App menu tray thing?
 // App Logo
 // Windows compatibility
@@ -10,7 +8,9 @@ import {
     app,
     BrowserWindow,
     ipcMain,
+    Tray,
     Menu,
+    nativeImage,
     screen,
     powerMonitor,
 } from "electron";
@@ -96,10 +96,12 @@ ipcMain.on("toMain", (event, args) => {
     }
 
     if (call == "OPEN_WIDGET") {
+        showCloseWidgetMenu();
         createWidget();
     }
 
     if (call == "CLOSE_WIDGET") {
+        showOpenWidgetMenu();
         Widget.close();
     }
 
@@ -276,6 +278,7 @@ class Storage {
     saveSettings(settings: Settings) {
         console.log("STORING", settings);
         this.store.set("settings", settings);
+        updateTray(this.getCurrentReading());
     }
     resetSettings() {
         console.log("WIPING SETTINGS");
@@ -333,6 +336,7 @@ class python {
                 );
                 sendRender({ READING: reading });
                 sendWidget({ READING: reading });
+                updateTray(reading);
             }
 
             if (message.includes("AUTH SUCCESS")) {
@@ -544,6 +548,67 @@ app.on("activate", () => {
     }
 });
 
+var tray: any;
+var trayMenu: any;
+
+app.whenReady().then(() => {
+    tray = new Tray(
+        nativeImage
+            .createFromPath("./dexcomSVG/app-logo-tray.png")
+            .resize({ width: 13 })
+    );
+
+    trayMenu = Menu.buildFromTemplate([
+        {
+            id: "open-widget",
+            label: "Open Widget",
+            type: "normal",
+            click: () => {
+                sendRender({ TRAY_OPEN_WIDGET: null });
+                showCloseWidgetMenu();
+            },
+        },
+        {
+            id: "close-widget",
+            label: "Close Widget",
+            type: "normal",
+            click: () => {
+                sendRender({ TRAY_CLOSE_WIDGET: null });
+                showOpenWidgetMenu();
+            },
+        },
+    ]);
+
+    tray.setToolTip("Dexcom");
+    tray.setContextMenu(trayMenu);
+
+    if (storage.getWidgetOpen()) {
+        trayMenu.getMenuItemById("open-widget").visible = false;
+        trayMenu.getMenuItemById("close-widget").visible = true;
+    } else {
+        trayMenu.getMenuItemById("close-widget").visible = false;
+        trayMenu.getMenuItemById("open-widget").visible = true;
+    }
+});
+
+function showOpenWidgetMenu() {
+    trayMenu.getMenuItemById("close-widget").visible = false;
+    trayMenu.getMenuItemById("open-widget").visible = true;
+}
+
+function showCloseWidgetMenu() {
+    trayMenu.getMenuItemById("open-widget").visible = false;
+    trayMenu.getMenuItemById("close-widget").visible = true;
+}
+
+function updateTray(reading: Reading) {
+    const unit = storage.getSettings().unit;
+    const glucose = unit == "mmol/l" ? reading.mmol_l : reading.value;
+    tray.setTitle(
+        ` ${glucose == -1 ? "" : ` ${glucose}`} ${reading.trend_arrow}`
+    );
+}
+
 // Build native menubar on mac
 const template: Electron.MenuItemConstructorOptions[] = [
     // { role: 'appMenu' }
@@ -593,10 +658,10 @@ const template: Electron.MenuItemConstructorOptions[] = [
     {
         label: "View",
         submenu: [
-            { role: "reload" },
-            { role: "forceReload" },
-            { role: "toggleDevTools" },
-            { type: "separator" },
+            // { role: "reload" },
+            // { role: "forceReload" },
+            // { role: "toggleDevTools" },
+            // { type: "separator" },
             { role: "resetZoom" },
             { role: "zoomIn" },
             { role: "zoomOut" },
@@ -613,8 +678,6 @@ const template: Electron.MenuItemConstructorOptions[] = [
 
             { type: "separator" },
             { role: "front" },
-            { type: "separator" },
-            { role: "window" },
         ],
     },
     {

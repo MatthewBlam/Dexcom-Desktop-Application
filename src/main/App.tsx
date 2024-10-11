@@ -110,12 +110,22 @@ const App = () => {
 
     function toggleWidget() {
         if (!widgetOpen) {
-            setWidgetOpen(true);
             sendMain({ OPEN_WIDGET: null });
+            setWidgetOpen(true);
         } else {
-            setWidgetOpen(false);
             sendMain({ CLOSE_WIDGET: null });
+            setWidgetOpen(false);
         }
+    }
+
+    function trayOpenWidget() {
+        sendMain({ OPEN_WIDGET: null });
+        setWidgetOpen(true);
+    }
+
+    function trayCloseWidget() {
+        sendMain({ CLOSE_WIDGET: null });
+        setWidgetOpen(false);
     }
 
     const hasPageRendered = useRef(false);
@@ -358,6 +368,14 @@ const App = () => {
 
             if (call == "CLOSE_WIDGET") {
                 setWidgetOpen(false);
+            }
+
+            if (call == "TRAY_OPEN_WIDGET") {
+                trayOpenWidget();
+            }
+
+            if (call == "TRAY_CLOSE_WIDGET") {
+                trayCloseWidget();
             }
 
             if (call == "READING") {

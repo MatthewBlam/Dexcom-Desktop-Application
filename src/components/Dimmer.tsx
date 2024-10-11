@@ -35,7 +35,7 @@ export const Dimmer = ({ active, className, ...props }: DimmerProps) => {
 
 const variantsFlashing = {
     hidden: { opacity: 0 },
-    visible: { opacity: [0, 0.5, 0] },
+    visible: { opacity: [0, 0.3, 0] },
 };
 
 export const DimmerFlashing = ({
