@@ -150,24 +150,25 @@ export const HistoryListItem = forwardRef<HTMLDivElement, HistoryListItemProps>(
                     <div
                         id="trend_arrow"
                         className="text-sm text-dex-text font-medium">
-                        {trendArrow}
+                        {value == -1 ? "" : trendArrow}
                     </div>
                     <div
                         id="trend_description"
                         className="text-sm text-dex-text font-medium ml-[1px]">
-                        {trendDescription}
+                        {value == -1 ? "" : trendDescription}
                     </div>
                 </div>
                 <div className="flex gap-2 ml-auto">
                     <div
                         id="time"
                         className="text-sm text-dex-text font-medium">
-                        {time},
+                        {value == -1 ? "" : time}
+                        {value == -1 ? "" : ","}
                     </div>
                     <div
                         id="date"
                         className="text-sm text-dex-text font-medium">
-                        {date}
+                        {value-- - 1 ? "" : date}
                     </div>
                 </div>
             </div>

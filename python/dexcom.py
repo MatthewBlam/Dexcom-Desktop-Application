@@ -70,7 +70,10 @@ def get_reading():
     G = DEXCOM.get_current_glucose_reading()
     broadcast("API Response:", G)
     if G is None:
-        return {"value": -1, "mmol_l": -1, "trend": 0, "trend_direction": "Unavailable", "trend_description": "Unavailable", "trend_arrow": "Unavailable", "date_time": "Unavailable"}
+        now = datetime.datetime.now()
+        date = now.strftime("%y/%m/%d")
+        time = now.strftime("X%I:%M %p").replace("X0", "X").replace("X", "").lower()
+        return {"id": f"{date}, {time}", "value": -1, "mmol_l": -1, "trend": 0, "trend_direction": "Unavailable", "trend_description": "Unavailable", "trend_arrow": "Unavailable", "date_time": "Unavailable"}
     value = G.value
     mmol_l = G.mmol_l
     trend = G.trend
@@ -82,7 +85,7 @@ def get_reading():
         mmol_l = -1
     date = G.datetime.strftime("%y/%m/%d")
     time = G.datetime.strftime("X%I:%M %p").replace("X0", "X").replace("X", "").lower()
-    return {"id": (f"{date}, {time}"), "value": value, "mmol_l": mmol_l, "trend": trend, "trend_direction": trend_direction, "trend_description": trend_description, "trend_arrow": trend_arrow, "date_time": [date, time]}
+    return {"id": f"{date}, {time}", "value": value, "mmol_l": mmol_l, "trend": trend, "trend_direction": trend_direction, "trend_description": trend_description, "trend_arrow": trend_arrow, "date_time": [date, time]}
 
 
 used_ids = []
