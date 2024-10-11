@@ -30,6 +30,7 @@ export const Checkbox = forwardRef<HTMLDivElement, CheckboxProps>(
         return (
             <div
                 ref={ref}
+                id="checkbox-container"
                 className={twMerge(
                     "checkcontainer inline-flex items-center group",
                     className
@@ -49,7 +50,7 @@ export const Checkbox = forwardRef<HTMLDivElement, CheckboxProps>(
                             G7theme
                                 ? "bg-dex-fg-light border-dex-fg-dark group-hover:border-dex-text-muted group-hover:border-opacity-70"
                                 : "bg-dex-fg-light border-dex-fg-dark group-hover:border-dex-text-muted group-hover:border-opacity-70",
-                            "checkbox peer appearance-none cursor-pointer w-4 h-4 border-2 outline-none focus-visible:border-dex-green focus-visible:group-hover:border-dex-green rounded ring-0 checked:bg-dex-green checked:group-hover:border-dex-green checked:border-dex-green disabled:cursor-not-allowed"
+                            "checkbox peer appearance-none cursor-pointer w-4 h-4 border-2 outline-none focus-visible:border-dex-green focus-visible:group-hover:border-dex-green rounded ring-0 checked:bg-dex-green checked:group-hover:border-dex-green checked:border-dex-green checked:disabled:group-hover:border-dex-green disabled:group-hover:border-dex-fg-dark disabled:cursor-not-allowed"
                         )}></input>
                     <span className="absolute cursor-pointer pointer-events-none text-dex-bg opacity-0 peer-checked:opacity-100 peer-disabled:cursor-not-allowed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <svg

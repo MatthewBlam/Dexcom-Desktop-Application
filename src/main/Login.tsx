@@ -97,6 +97,7 @@ export const Login = forwardRef<HTMLDivElement, LoginProps>(
                     tabbable={tabbable}
                     className="mt-2 mb-[22%]"
                     click={loginClick}
+                    disabled={disabled}
                     text="Log In"></LoginButton>
             </div>
         );

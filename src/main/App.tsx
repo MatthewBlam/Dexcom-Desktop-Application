@@ -2,11 +2,11 @@ import { StrictMode, useCallback, useEffect, useState, useRef } from "react";
 import { useSettingsContext } from "../contexts/SettingsContext";
 import { useHistoryContext } from "../contexts/HistoryContext";
 import { DraggableTopBar } from "../components/DraggableTopBar";
+import { Dimmer, DimmerFlashing } from "../components/Dimmer";
 import { RootLayout } from "../components/RootLayout";
 import { ErrorToast } from "../components/ErrorToast";
 import { Settings } from "../components/Settings";
 import { Button } from "../components/Button";
-import { Dimmer, DimmerFlashing } from "../components/Dimmer";
 import { motion, useAnimate } from "framer-motion";
 import { twMerge } from "tailwind-merge";
 import { Display } from "./Display";
@@ -184,6 +184,15 @@ const App = () => {
     const [displayOpen, setDisplayOpen] = useState<boolean>(true);
     const [displayScope, displayAnimate] = useAnimate();
 
+    useEffect(() => {
+        if (!loginOpen && !displayOpen) {
+            console.log("FLASHING ON");
+            setDimmerFlashingOn(true);
+        } else {
+            setDimmerFlashingOn(false);
+        }
+    }, [loginOpen, displayOpen]);
+
     function closeLoginPage() {
         loginAnimate(
             loginScope.current,
@@ -220,6 +229,7 @@ const App = () => {
         );
         closeDisplayPage();
         setLoginOpen(true);
+        setDimmerFlashingOn(false);
     }
 
     function openDisplayPage() {
@@ -230,6 +240,7 @@ const App = () => {
         );
         closeLoginPage();
         setDisplayOpen(true);
+        setDimmerFlashingOn(false);
     }
 
     const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
@@ -275,6 +286,7 @@ const App = () => {
     }
 
     useEffect(() => {
+        setDimmerFlashingOn(false);
         closeLoginPage();
         closeDisplayPage();
 
@@ -360,6 +372,8 @@ const App = () => {
         });
     }, []);
 
+    const key = String(new Date().getTime());
+
     return (
         <StrictMode>
             <DraggableTopBar></DraggableTopBar>
@@ -387,7 +401,10 @@ const App = () => {
                         loginClick={loginClick}
                         disabled={disableForm}
                         tabbable={
-                            CREDENTIALS || settingsOpen || confirmOpen
+                            CREDENTIALS ||
+                            settingsOpen ||
+                            confirmOpen ||
+                            pythonError
                                 ? false
                                 : true
                         }></Login>
@@ -407,7 +424,10 @@ const App = () => {
                         toggleWidget={toggleWidget}
                         widgetOpen={widgetOpen}
                         tabbable={
-                            !CREDENTIALS || settingsOpen || confirmOpen
+                            !CREDENTIALS ||
+                            settingsOpen ||
+                            confirmOpen ||
+                            pythonError
                                 ? false
                                 : true
                         }></Display>
@@ -423,7 +443,10 @@ const App = () => {
             </RootLayout>
 
             <Dimmer active={dimmerOn}></Dimmer>
-            <DimmerFlashing active={dimmerFlashingOn}></DimmerFlashing>
+            <DimmerFlashing
+                show={dimmerFlashingOn}
+                key={key}
+                active={dimmerFlashingOn}></DimmerFlashing>
 
             {isSettingsLoaded && (
                 <Settings

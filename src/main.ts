@@ -1,6 +1,5 @@
 // TODO: disable refresh and other maybe unwanted user commands
-// Any comments
-// Loading indicator on startup (blank screen while logging in)
+// Native menu bar apple
 // Several displays support?
 // App menu tray thing?
 // App Logo
@@ -445,7 +444,7 @@ const createWindow = () => {
         center: true,
         title: "Dexcom",
         frame: false,
-        titleBarStyle: "hidden",
+        titleBarStyle: "customButtonsOnHover",
         trafficLightPosition: { x: 12, y: 12 },
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),

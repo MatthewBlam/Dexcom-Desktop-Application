@@ -16,6 +16,14 @@
     -webkit-app-region: drag;
 }
 
+#checkbox-container:has(> label > input#checkbox:checked) > label {
+    color: #1a1a1a;
+}
+
+#checkbox-container:has(> label > input#checkbox:checked:disabled) > label {
+    color: #757575;
+}
+
 html {
     min-height: 100%;
     height: 100%;
