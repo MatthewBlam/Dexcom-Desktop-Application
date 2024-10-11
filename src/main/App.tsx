@@ -5,6 +5,7 @@ import { DraggableTopBar } from "../components/DraggableTopBar";
 import { RootLayout } from "../components/RootLayout";
 import { ErrorToast } from "../components/ErrorToast";
 import { Settings } from "../components/Settings";
+import { Button } from "../components/Button";
 import { Dimmer } from "../components/Dimmer";
 import { motion, useAnimate } from "framer-motion";
 import { twMerge } from "tailwind-merge";
@@ -12,6 +13,7 @@ import { Display } from "./Display";
 import { Login } from "./Login";
 import "inter-ui/inter.css";
 import clsx from "clsx";
+import { PythonShellError } from "python-shell";
 
 interface Settings {
     sensor: "G6" | "G7";
@@ -32,6 +34,11 @@ interface Reading {
     trend_arrow: string;
     date_time: Array<string>;
 }
+
+const variants = {
+    hidden: { opacity: 0, scale: 0, x: "-50%", y: "-50%" },
+    visible: { opacity: 1, scale: 1, x: "-50%", y: "-50%" },
+};
 
 const App = () => {
     const sendMain = useCallback((message: object) => {
@@ -251,6 +258,22 @@ const App = () => {
     });
     const { historyItems, setHistoryItems } = useHistoryContext();
 
+    const [pythonError, setPythonError] = useState(false);
+
+    function openPythonError() {
+        setDimmerOn(true);
+        setPythonError(true);
+    }
+
+    function closePythonError() {
+        setDimmerOn(false);
+        setPythonError(false);
+    }
+
+    function restartApp() {
+        sendMain({ RESTART: null });
+    }
+
     useEffect(() => {
         closeLoginPage();
         closeDisplayPage();
@@ -269,6 +292,10 @@ const App = () => {
             const values = JSON.parse(data);
             const keys = Object.keys(values);
             const call = keys[0];
+
+            if (call == "PYTHON_ERROR") {
+                openPythonError();
+            }
 
             if (call == "AUTH_ERROR") {
                 setLOADED(true);
@@ -421,6 +448,42 @@ const App = () => {
                     setHighMMOLLState={setHighMMOLLState}
                     setLowMMOLLState={setLowMMOLLState}></Settings>
             )}
+
+            <motion.div
+                id="pythonError"
+                variants={variants}
+                animate={pythonError ? "visible" : "hidden"}
+                transition={{
+                    duration: 0.05,
+                    opacity: {
+                        duration: 0.2,
+                    },
+                }}
+                className="w-max absolute rounded-lg bg-dex-bg drop-shadow-2xl opacity-0 left-1/2 top-1/2 p-6 z-30">
+                <div className="text-nowrap mb-1 text-lg font-semibold text-dex-text">
+                    Dexcom process error
+                </div>
+                <div className="mb-6 text-sm font-normal text-dex-text-muted">
+                    You may need to restart Dexcom Desktop Application
+                </div>
+                <div className="flex justify-end gap-2">
+                    <Button
+                        className="text-sm py-2 pl-3.5 pr-[14.25px] bg-dex-bg hover:bg-dex-bg text-dex-text-muted hover:text-dex-text "
+                        text="Ok"
+                        tabbable={pythonError}
+                        click={() => {
+                            closePythonError();
+                        }}></Button>
+                    <Button
+                        className="focus-visible:outline-dex-green outline-transparent text-sm py-2 pl-3.5 pr-[14.25px]"
+                        text="Restart"
+                        tabbable={pythonError}
+                        click={() => {
+                            closePythonError();
+                            restartApp();
+                        }}></Button>
+                </div>
+            </motion.div>
         </StrictMode>
     );
 };

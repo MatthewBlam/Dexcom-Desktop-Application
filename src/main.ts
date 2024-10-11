@@ -45,6 +45,11 @@ ipcMain.on("toMain", (event, args) => {
     const keys = Object.keys(values);
     const call = keys[0];
 
+    if (call == "RESTART") {
+        app.relaunch();
+        app.quit();
+    }
+
     if (call == "TERMINATE") {
         storage.resetCredentials();
         Python.end();
@@ -343,8 +348,12 @@ class python {
         });
 
         this.Process.stderr.on("data", (error: any) => {
+            error = error.toString();
             console.log("PYTHON ERROR\n" + error.toString());
-            // send error to render
+            sendRender({ PYTHON_ERROR: null });
+            if (!error.includes("urllib3 v2 only supports")) {
+                Python.restart();
+            }
         });
 
         this.Process.on("close", (code: any) => {
@@ -373,9 +382,26 @@ class python {
             }
             if (i > 20) {
                 this.Process.kill();
+                sendRender({ PYTHON_ERROR: null });
                 clearInterval(interval);
-                // something went wrong (timeout, python still running (this.running is true))
             }
+        }, 1000);
+    }
+
+    restart() {
+        this.Process.kill();
+        var i = 1;
+        const restart = setInterval(() => {
+            if (!this.running) {
+                this.start();
+                clearInterval(restart);
+            }
+            if (i > 10) {
+                this.Process.kill();
+                sendRender({ PYTHON_ERROR: null });
+                clearInterval(restart);
+            }
+            i += 1;
         }, 1000);
     }
 
