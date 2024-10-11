@@ -6,14 +6,13 @@ import { RootLayout } from "../components/RootLayout";
 import { ErrorToast } from "../components/ErrorToast";
 import { Settings } from "../components/Settings";
 import { Button } from "../components/Button";
-import { Dimmer } from "../components/Dimmer";
+import { Dimmer, DimmerFlashing } from "../components/Dimmer";
 import { motion, useAnimate } from "framer-motion";
 import { twMerge } from "tailwind-merge";
 import { Display } from "./Display";
 import { Login } from "./Login";
 import "inter-ui/inter.css";
 import clsx from "clsx";
-import { PythonShellError } from "python-shell";
 
 interface Settings {
     sensor: "G6" | "G7";
@@ -175,10 +174,11 @@ const App = () => {
         setDisableForm(false);
         setCREDENTIALS(false);
         sessionStorage.clear();
-        // Add loading or smth until hearing back from python KILLED_PYTHON
+        setDimmerFlashingOn(true);
     };
 
     const [dimmerOn, setDimmerOn] = useState<boolean>(false);
+    const [dimmerFlashingOn, setDimmerFlashingOn] = useState<boolean>(false);
     const [loginOpen, setLoginOpen] = useState<boolean>(true);
     const [loginScope, loginAnimate] = useAnimate();
     const [displayOpen, setDisplayOpen] = useState<boolean>(true);
@@ -330,7 +330,7 @@ const App = () => {
             }
 
             if (call == "KILLED_PYTHON") {
-                // Close loading state
+                setDimmerFlashingOn(false);
                 openLoginPage();
             }
 
@@ -423,6 +423,7 @@ const App = () => {
             </RootLayout>
 
             <Dimmer active={dimmerOn}></Dimmer>
+            <DimmerFlashing active={dimmerFlashingOn}></DimmerFlashing>
 
             {isSettingsLoaded && (
                 <Settings

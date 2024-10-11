@@ -350,7 +350,6 @@ class python {
         this.Process.stderr.on("data", (error: any) => {
             error = error.toString();
             console.log("PYTHON ERROR\n" + error.toString());
-            sendRender({ PYTHON_ERROR: null });
             if (!error.includes("urllib3 v2 only supports")) {
                 Python.restart();
             }

@@ -30,3 +30,24 @@ export const Dimmer = ({ active, className, ...props }: DimmerProps) => {
         </motion.div>
     );
 };
+
+export const DimmerFlashing = ({
+    active,
+    className,
+    ...props
+}: DimmerProps) => {
+    return (
+        <motion.div
+            variants={variants}
+            animate={active ? "visible" : "hidden"}
+            transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+            className={twMerge(
+                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-dex-text z-10 opacity-0",
+                clsx({ "pointer-events-none": !active }),
+                className
+            )}
+            {...props}>
+            <DraggableTopBar hideLogo={true}></DraggableTopBar>
+        </motion.div>
+    );
+};
