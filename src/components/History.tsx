@@ -168,7 +168,7 @@ export const HistoryListItem = forwardRef<HTMLDivElement, HistoryListItemProps>(
                     <div
                         id="date"
                         className="text-sm text-dex-text font-medium">
-                        {value-- - 1 ? "" : date}
+                        {value == -1 ? "" : date}
                     </div>
                 </div>
             </div>
