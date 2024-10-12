@@ -1,4 +1,5 @@
 // TODO: disable refresh and other maybe unwanted user commands
+// App Logo
 // Windows compatibility
 // Build
 
@@ -321,8 +322,8 @@ class python {
         }
         console.log("STARTING");
         const pythonEXE = MAIN_WINDOW_VITE_DEV_SERVER_URL
-            ? "src/dexcom"
-            : path.join(__dirname, "../dexcom");
+            ? "./dexcom"
+            : path.join(__dirname, ".../dexcom");
 
         this.Process = spawn(
             pythonEXE,
@@ -467,10 +468,6 @@ const createWindow = () => {
         },
     });
 
-    console.log("Loading main window...");
-
-    Win.webContents.openDevTools();
-
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
         Win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     } else {
@@ -489,10 +486,6 @@ const createWindow = () => {
         storage.saveWinBounds({ width: bounds.width, height: bounds.height });
     });
 };
-
-process.on("uncaughtException", (error) => {
-    console.error("Uncaught Exception:", error);
-});
 
 const createWidget = (focus: any) => {
     if (!widgetOpen) {
@@ -575,8 +568,8 @@ var trayMenu: any;
 
 app.whenReady().then(() => {
     const iconPath = MAIN_WINDOW_VITE_DEV_SERVER_URL
-        ? "src/graphics/app-logo-trayTemplate.png"
-        : path.join(__dirname, "../graphics/app-logo-trayTemplate.png");
+        ? "./dexcom_graphics/app-logo-trayTemplate.png"
+        : path.join(__dirname, ".../dexcom_graphics/app-logo-trayTemplate.png");
     const icon = nativeImage.createFromPath(iconPath).resize({ width: 13 });
     icon.setTemplateImage(true);
     tray = new Tray(icon);
@@ -607,6 +600,14 @@ app.whenReady().then(() => {
 
     trayMenu.getMenuItemById("open-widget").visible = false;
     trayMenu.getMenuItemById("close-widget").visible = false;
+
+    // if (storage.getWidgetOpen()) {
+    //     trayMenu.getMenuItemById("open-widget").visible = false;
+    //     trayMenu.getMenuItemById("close-widget").visible = true;
+    // } else {
+    //     trayMenu.getMenuItemById("close-widget").visible = false;
+    //     trayMenu.getMenuItemById("open-widget").visible = true;
+    // }
 });
 
 function showOpenWidgetMenu() {

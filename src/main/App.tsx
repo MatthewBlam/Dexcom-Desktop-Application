@@ -461,7 +461,7 @@ const App = () => {
             <Dimmer active={dimmerOn}></Dimmer>
             <DimmerFlashing
                 show={dimmerFlashingOn}
-                key={key}
+                id={key}
                 active={dimmerFlashingOn}></DimmerFlashing>
 
             {isSettingsLoaded && (

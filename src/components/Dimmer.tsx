@@ -11,7 +11,7 @@ const variants = {
 export interface DimmerProps extends HTMLMotionProps<"div"> {
     active: boolean;
     show?: boolean;
-    key?: any;
+    id?: any;
 }
 
 export const Dimmer = ({ active, className, ...props }: DimmerProps) => {
@@ -42,7 +42,7 @@ export const DimmerFlashing = ({
     active,
     className,
     show,
-    key,
+    id,
     ...props
 }: DimmerProps) => {
     return (
@@ -50,7 +50,7 @@ export const DimmerFlashing = ({
             {show && (
                 <motion.div
                     variants={variantsFlashing}
-                    key={`flasher${key}`}
+                    key={`flasher${id}`}
                     animate={active ? "visible" : "hidden"}
                     initial={{ opacity: 0 }}
                     exit={{ opacity: 0 }}
