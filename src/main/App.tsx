@@ -119,7 +119,7 @@ const App = () => {
     }
 
     function trayOpenWidget() {
-        sendMain({ OPEN_WIDGET: null });
+        sendMain({ OPEN_WIDGET: "NOFOCUS" });
         setWidgetOpen(true);
     }
 
@@ -250,6 +250,7 @@ const App = () => {
         );
         closeLoginPage();
         setDisplayOpen(true);
+        sendMain({ GET_WIDGET_OPEN: null });
         setDimmerFlashingOn(false);
     }
 
@@ -301,7 +302,6 @@ const App = () => {
         closeDisplayPage();
 
         sendMain({ DOM: null });
-        sendMain({ GET_WIDGET_OPEN: null });
 
         var session = sessionStorage.getItem("session");
         if (session) {
@@ -357,13 +357,11 @@ const App = () => {
             }
 
             if (call == "WIDGET_OPEN") {
-                if (CREDENTIALS) {
-                    const open = values["WIDGET_OPEN"];
-                    setWidgetOpen(false);
-                    if (open) {
-                        toggleWidget();
-                    }
+                const open = values["WIDGET_OPEN"];
+                if (open && !widgetOpen) {
+                    toggleWidget();
                 }
+                sendMain({ SET_TRAY: open });
             }
 
             if (call == "CLOSE_WIDGET") {

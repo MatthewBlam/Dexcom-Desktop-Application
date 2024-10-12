@@ -50,6 +50,7 @@ ipcMain.on("toMain", (event, args) => {
 
     if (call == "TERMINATE") {
         storage.resetCredentials();
+        resetTray();
         Python.end();
     }
 
@@ -96,12 +97,20 @@ ipcMain.on("toMain", (event, args) => {
 
     if (call == "OPEN_WIDGET") {
         showCloseWidgetMenu();
-        createWidget();
+        createWidget(values["OPEN_WIDGET"]);
     }
 
     if (call == "CLOSE_WIDGET") {
         showOpenWidgetMenu();
         Widget.close();
+    }
+
+    if (call == "SET_TRAY") {
+        if (values["SET_TRAY"]) {
+            showCloseWidgetMenu();
+        } else {
+            showOpenWidgetMenu();
+        }
     }
 
     if (call == "GET_WIDGET") {
@@ -113,6 +122,7 @@ ipcMain.on("toMain", (event, args) => {
     }
 
     if (call == "GET_WIDGET_OPEN") {
+        console.log(storage.getWidgetOpen());
         sendRender({ WIDGET_OPEN: storage.getWidgetOpen() });
     }
 
@@ -310,13 +320,13 @@ class python {
         if (this.running) {
             return;
         }
-
-        const pythonEXE = MAIN_WINDOW_VITE_DEV_SERVER_URL
-            ? "./dexcom"
-            : path.join(__dirname, "../dexcom");
+        console.log("STARTING");
+        // const pythonEXE = MAIN_WINDOW_VITE_DEV_SERVER_URL
+        //     ? "./dexcom"
+        //     : path.join(__dirname, "../dexcom");
 
         this.Process = spawn(
-            pythonEXE,
+            "./dexcom",
             [
                 this.credentials.user,
                 this.credentials.password,
@@ -477,7 +487,7 @@ const createWindow = () => {
     });
 };
 
-const createWidget = () => {
+const createWidget = (focus: any) => {
     if (!widgetOpen) {
         const primaryDisplay = screen.getPrimaryDisplay();
         const { width, height } = primaryDisplay.workAreaSize;
@@ -511,7 +521,9 @@ const createWidget = () => {
         }
 
         widgetOpen = true;
-        Win.focus();
+        if (focus != "NOFOCUS") {
+            Win.focus();
+        }
 
         Widget.on("close", () => {
             widgetOpen = false;
@@ -586,13 +598,16 @@ app.whenReady().then(() => {
     tray.setToolTip("Dexcom");
     tray.setContextMenu(trayMenu);
 
-    if (storage.getWidgetOpen()) {
-        trayMenu.getMenuItemById("open-widget").visible = false;
-        trayMenu.getMenuItemById("close-widget").visible = true;
-    } else {
-        trayMenu.getMenuItemById("close-widget").visible = false;
-        trayMenu.getMenuItemById("open-widget").visible = true;
-    }
+    trayMenu.getMenuItemById("open-widget").visible = false;
+    trayMenu.getMenuItemById("close-widget").visible = false;
+
+    // if (storage.getWidgetOpen()) {
+    //     trayMenu.getMenuItemById("open-widget").visible = false;
+    //     trayMenu.getMenuItemById("close-widget").visible = true;
+    // } else {
+    //     trayMenu.getMenuItemById("close-widget").visible = false;
+    //     trayMenu.getMenuItemById("open-widget").visible = true;
+    // }
 });
 
 function showOpenWidgetMenu() {
@@ -603,6 +618,12 @@ function showOpenWidgetMenu() {
 function showCloseWidgetMenu() {
     trayMenu.getMenuItemById("open-widget").visible = false;
     trayMenu.getMenuItemById("close-widget").visible = true;
+}
+
+function resetTray() {
+    trayMenu.getMenuItemById("close-widget").visible = false;
+    trayMenu.getMenuItemById("open-widget").visible = false;
+    tray.setTitle("");
 }
 
 function updateTray(reading: Reading) {
@@ -664,7 +685,7 @@ const template: Electron.MenuItemConstructorOptions[] = [
         submenu: [
             // { role: "reload" },
             // { role: "forceReload" },
-            // { role: "toggleDevTools" },
+            { role: "toggleDevTools" },
             // { type: "separator" },
             { role: "resetZoom" },
             { role: "zoomIn" },
