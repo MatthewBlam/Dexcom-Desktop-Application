@@ -321,12 +321,12 @@ class python {
             return;
         }
         console.log("STARTING");
-        // const pythonEXE = MAIN_WINDOW_VITE_DEV_SERVER_URL
-        //     ? "./dexcom"
-        //     : path.join(__dirname, "../dexcom");
+        const pythonEXE = MAIN_WINDOW_VITE_DEV_SERVER_URL
+            ? "./dexcom"
+            : path.join(__dirname, ".../dexcom");
 
         this.Process = spawn(
-            "./dexcom",
+            pythonEXE,
             [
                 this.credentials.user,
                 this.credentials.password,
@@ -569,7 +569,7 @@ var trayMenu: any;
 app.whenReady().then(() => {
     const iconPath = MAIN_WINDOW_VITE_DEV_SERVER_URL
         ? "./dexcom_graphics/app-logo-trayTemplate.png"
-        : path.join(__dirname, "../dexcom_graphics/app-logo-trayTemplate.png");
+        : path.join(__dirname, ".../dexcom_graphics/app-logo-trayTemplate.png");
     const icon = nativeImage.createFromPath(iconPath).resize({ width: 13 });
     icon.setTemplateImage(true);
     tray = new Tray(icon);
