@@ -1,6 +1,5 @@
-// TODO: disable refresh and other maybe unwanted user commands
-// Windows compatibility
-// Build
+// TODO:
+// Windows & Mac Intel Compatibility
 
 import {
     app,
@@ -326,13 +325,11 @@ class python {
         if (this.running) {
             return;
         }
-        console.log("STARTING");
         const nonDevPath = path.resolve(path.resolve(__dirname, ".."), "..");
         const pythonEXE = MAIN_WINDOW_VITE_DEV_SERVER_URL
             ? "src/dexcom"
             : path.join(path.resolve(nonDevPath, ".."), "dexcom");
-
-        log("PYTHONPATH", pythonEXE);
+        log("STARTING", pythonEXE);
 
         this.Process = spawn(
             pythonEXE,

@@ -12,7 +12,7 @@
   <p align="center">
     View and monitor blood glucose readings on the computer
     <br />
-    This project is still in development
+    Download here (currently only supports apple silicon macs): 
     <br />
   </p>
 </div>
