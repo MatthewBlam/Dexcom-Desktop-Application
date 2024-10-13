@@ -12,7 +12,7 @@
   <p align="center">
     View and monitor blood glucose readings on the computer
     <br />
-    Download here (currently only supports apple silicon macs): 
+    Download here (currently only supports apple silicon macs): <a href="https://github.com/MatthewBlam/Dexcom-Desktop-Application/releases/tag/v1.0.0">v1.0.0</a>
     <br />
   </p>
 </div>
