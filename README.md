@@ -1,7 +1,4 @@
-<a name="readme-top"></a>
-
 <!-- PROJECT LOGO -->
-<br />
 <div align="center">
   <a href="https://github.com/MatthewBlam/Dexcom-Desktop-Application/releases/tag/v1.0.0">
     <img src="src/graphics/app-icon-1024.png" alt="Logo" width="80" height="80">
