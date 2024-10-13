@@ -1,0 +1,1 @@
+npx @electron/asar extract app.asar asar_out

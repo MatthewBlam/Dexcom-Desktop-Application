@@ -6,11 +6,14 @@ import { MakerRpm } from "@electron-forge/maker-rpm";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
+import path from "path";
+import fs from "fs-extra";
 
 const config: ForgeConfig = {
     packagerConfig: {
-        name: "Dexcom Desktop Application",
+        name: "Dexcom",
         icon: "src/graphics/app-icon",
+        extraResource: ["src/dexcom"],
         asar: true,
     },
     rebuildConfig: {},

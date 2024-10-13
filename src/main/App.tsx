@@ -240,6 +240,7 @@ const App = () => {
         closeDisplayPage();
         setLoginOpen(true);
         setDimmerFlashingOn(false);
+        sendMain({ RESET_TRAY: null });
     }
 
     function openDisplayPage() {
@@ -315,6 +316,10 @@ const App = () => {
             const keys = Object.keys(values);
             const call = keys[0];
 
+            if (call == "LOG") {
+                console.log(values["LOG"]);
+            }
+
             if (call == "PYTHON_ERROR") {
                 openPythonError();
             }
@@ -388,7 +393,7 @@ const App = () => {
         });
     }, []);
 
-    const key = String(new Date().getTime());
+    const keyID = String(new Date().getTime());
 
     return (
         <StrictMode>
@@ -459,10 +464,12 @@ const App = () => {
             </RootLayout>
 
             <Dimmer active={dimmerOn}></Dimmer>
-            <DimmerFlashing
-                show={dimmerFlashingOn}
-                id={key}
-                active={dimmerFlashingOn}></DimmerFlashing>
+            {!loginOpen && !displayOpen && (
+                <DimmerFlashing
+                    show={dimmerFlashingOn}
+                    keyID={keyID}
+                    active={dimmerFlashingOn}></DimmerFlashing>
+            )}
 
             {isSettingsLoaded && (
                 <Settings

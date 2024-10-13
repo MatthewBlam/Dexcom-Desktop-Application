@@ -37,6 +37,11 @@ function sendWidget(message: object) {
     }
 }
 
+function log(...messages: any[]) {
+    sendRender({ LOG: [...messages] });
+    console.log(...messages);
+}
+
 ipcMain.on("toMain", (event, args) => {
     const values = JSON.parse(args);
     const keys = Object.keys(values);
@@ -45,6 +50,10 @@ ipcMain.on("toMain", (event, args) => {
     if (call == "RESTART") {
         app.relaunch();
         app.quit();
+    }
+
+    if (call == "RESET_TRAY") {
+        resetTray();
     }
 
     if (call == "TERMINATE") {
@@ -294,8 +303,6 @@ class Storage {
     }
 }
 const storage = new Storage();
-// storage.resetSettings(); // REMOVE THIS IT IS ONLY FOR DEV TESTING
-// storage.resetCredentials(); // REMOVE THIS IT IS ONLY FOR DEV TESTING
 
 function getID() {
     const ID = new Date();
@@ -320,9 +327,12 @@ class python {
             return;
         }
         console.log("STARTING");
+        const nonDevPath = path.resolve(path.resolve(__dirname, ".."), "..");
         const pythonEXE = MAIN_WINDOW_VITE_DEV_SERVER_URL
             ? "src/dexcom"
-            : path.join(__dirname, "../dexcom");
+            : path.join(path.resolve(nonDevPath, ".."), "dexcom");
+
+        log("PYTHONPATH", pythonEXE);
 
         this.Process = spawn(
             pythonEXE,
@@ -365,6 +375,7 @@ class python {
         this.Process.stderr.on("data", (error: any) => {
             error = error.toString();
             console.log("PYTHON ERROR\n" + error.toString());
+            log(error);
             if (!error.includes("urllib3 v2 only supports")) {
                 Python.restart();
             }
@@ -467,17 +478,16 @@ const createWindow = () => {
         },
     });
 
-    console.log("Loading main window...");
-
-    Win.webContents.openDevTools();
+    // Win.webContents.openDevTools();
 
     if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        console.log(MAIN_WINDOW_VITE_NAME);
         Win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     } else {
         Win.loadFile(
             path.join(
                 __dirname,
-                `../main/renderer/${MAIN_WINDOW_VITE_NAME}/index.html`
+                `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`
             )
         );
     }
@@ -522,7 +532,7 @@ const createWidget = (focus: any) => {
             Widget.loadFile(
                 path.join(
                     __dirname,
-                    `../widget/renderer/${WIDGET_WINDOW_VITE_NAME}/index.html`
+                    `../renderer/${WIDGET_WINDOW_VITE_NAME}/index.html`
                 )
             );
         }
@@ -570,13 +580,20 @@ app.on("activate", () => {
     }
 });
 
+app.setAboutPanelOptions({
+    applicationName: "Dexcom (unofficial)",
+    applicationVersion: "1.0.0",
+    version: "1.0.0",
+    credits: "Matthew Blam",
+});
+
 var tray: any;
 var trayMenu: any;
 
 app.whenReady().then(() => {
     const iconPath = MAIN_WINDOW_VITE_DEV_SERVER_URL
         ? "src/graphics/app-logo-trayTemplate.png"
-        : path.join(__dirname, "../graphics/app-logo-trayTemplate.png");
+        : path.join(__dirname, "../assets/graphics/app-logo-trayTemplate.png");
     const icon = nativeImage.createFromPath(iconPath).resize({ width: 13 });
     icon.setTemplateImage(true);
     tray = new Tray(icon);
@@ -684,7 +701,7 @@ const template: Electron.MenuItemConstructorOptions[] = [
         submenu: [
             // { role: "reload" },
             // { role: "forceReload" },
-            { role: "toggleDevTools" },
+            // { role: "toggleDevTools" },
             // { type: "separator" },
             { role: "resetZoom" },
             { role: "zoomIn" },
