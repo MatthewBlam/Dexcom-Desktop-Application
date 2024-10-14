@@ -7,7 +7,7 @@
 <h3 align="center">Dexcom Desktop Application</h3>
 
   <p align="center">
-    View and monitor blood glucose readings on the computer
+    View and monitor G6 / G7 blood glucose readings on the computer
     <br />
     <br />
     Download here: <a href="https://github.com/MatthewBlam/Dexcom-Desktop-Application/releases/tag/v1.0.0">v1.0.0</a>
