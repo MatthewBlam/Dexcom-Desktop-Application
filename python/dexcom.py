@@ -1,4 +1,5 @@
 from pydexcom import Dexcom
+from time import sleep
 import threading
 import datetime
 import sys
@@ -9,7 +10,7 @@ os.set_blocking(sys.stdin.fileno(), False)  # Allow stdin input
 def broadcast(*message):
     print(*message)
     sys.stdout.flush()
-    
+
 
 broadcast("PYTHON START")
 
@@ -111,6 +112,7 @@ class Glucose(threading.Thread):
                 glucose_reading = get_reading()
                 send_reading(glucose_reading)
                 self.event.wait(timeout=60)
+            self.event.wait(timeout=1)
         broadcast("BROKE GLUCOSE LOOP")
 
 
@@ -137,5 +139,6 @@ if not auth_error:
             used_lines.append(line)
         if terminate:
             break
+        sleep(0.5)
     broadcast("CLOSING PYTHON")
 
