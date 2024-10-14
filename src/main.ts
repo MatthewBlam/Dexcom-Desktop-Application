@@ -472,6 +472,7 @@ const createWindow = () => {
         trafficLightPosition: { x: 12, y: 12 },
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
+            backgroundThrottling: false,
         },
     });
 
@@ -517,9 +518,9 @@ const createWidget = (focus: any) => {
             alwaysOnTop: true,
             transparent: true,
             hasShadow: false,
-
             webPreferences: {
                 preload: path.join(__dirname, "preload.js"),
+                backgroundThrottling: false,
             },
         });
 
