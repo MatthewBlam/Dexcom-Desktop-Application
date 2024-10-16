@@ -405,6 +405,9 @@ class python {
             if (i > 20) {
                 this.Process.kill();
                 sendRender({ PYTHON_ERROR: null });
+                Win.show();
+                Win.restore();
+                Win.focus();
                 clearInterval(interval);
             }
         }, 1000);
@@ -421,6 +424,9 @@ class python {
             if (i > 10) {
                 this.Process.kill();
                 sendRender({ PYTHON_ERROR: null });
+                Win.show();
+                Win.restore();
+                Win.focus();
                 clearInterval(restart);
             }
             i += 1;
