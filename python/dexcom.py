@@ -1,3 +1,11 @@
+import warnings
+
+# Silence urllib3 LibreSSL warning noise on macOS.
+warnings.filterwarnings(
+    "ignore",
+    message=r"urllib3 v2 only supports OpenSSL 1\.1\.1\+",
+)
+
 from pydexcom import Dexcom
 from time import sleep
 import threading
@@ -141,4 +149,3 @@ if not auth_error:
             break
         sleep(0.5)
     broadcast("CLOSING PYTHON")
-

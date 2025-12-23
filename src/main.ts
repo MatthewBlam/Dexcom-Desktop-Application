@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // TODO:
 // Windows & Mac Intel Compatibility
 
@@ -16,10 +17,10 @@ const Store = require("electron-store");
 import path from "path";
 
 // Globals
-var Python: python;
-var Win: BrowserWindow;
-var Widget: BrowserWindow;
-var widgetOpen: boolean = false;
+let Python: python;
+let Win: BrowserWindow;
+let Widget: BrowserWindow;
+let widgetOpen = false;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -191,7 +192,7 @@ class Storage {
     getWinBounds(): Bounds {
         const bounds: Bounds | null = this.store.get("win-bounds");
         if (!bounds) {
-            var defaultBounds: Bounds = { width: 800, height: 500 };
+            const defaultBounds: Bounds = { width: 800, height: 500 };
             this.store.set("win-bounds", defaultBounds);
             return defaultBounds;
         }
@@ -205,7 +206,7 @@ class Storage {
     getWidgetPosition() {
         const position = this.store.get("widget-position");
         if (!position) {
-            var defaultPosition = ["0px", "0px"];
+            const defaultPosition = ["0px", "0px"];
             this.store.set("widget-position", defaultPosition);
             return defaultPosition;
         }
@@ -236,7 +237,7 @@ class Storage {
     getCurrentReading() {
         const reading = this.store.get("current-reading");
         if (!reading) {
-            var defualtReading = {
+            const defualtReading = {
                 id: "Unavailable",
                 value: -1,
                 mmol_l: -1,
@@ -310,7 +311,7 @@ function getID() {
 
 class python {
     Process: typeof spawn;
-    running: boolean = false;
+    running = false;
     credentials: Credentials;
 
     constructor(cred: Credentials) {
@@ -391,7 +392,7 @@ class python {
 
         console.log("TERMINATING PYTHON");
         this.send("TERMINATE");
-        var i = 0;
+        let i = 0;
         const interval = setInterval(() => {
             i += 1;
             if (!this.running) {
@@ -415,7 +416,7 @@ class python {
 
     restart() {
         this.Process.kill();
-        var i = 1;
+        let i = 1;
         const restart = setInterval(() => {
             if (!this.running) {
                 this.start();
@@ -591,8 +592,8 @@ app.setAboutPanelOptions({
     credits: "Matthew Blam",
 });
 
-var tray: any;
-var trayMenu: any;
+let tray: any;
+let trayMenu: any;
 
 app.whenReady().then(() => {
     const iconPath = MAIN_WINDOW_VITE_DEV_SERVER_URL

@@ -85,17 +85,17 @@ const Widget = () => {
         date_time: ["Unavailable", "Unavailable"],
     });
 
-    var t = reading.trend_direction;
+    let t = reading.trend_direction;
     if (t == "None" || t == "NotComputable" || t == "RateOutOfRange") {
         t = "Unavailable";
     }
-    var v;
+    let v;
     if (reading.value == -1) {
         v = "--";
     } else {
         v = reading.value;
     }
-    var m;
+    let m;
     if (reading.mmol_l == -1) {
         m = "--";
     } else {
@@ -157,9 +157,9 @@ const Widget = () => {
         });
 
         window.api.receive("toRender", (data: string) => {
-            var values = JSON.parse(data);
-            var keys = Object.keys(values);
-            var call = keys[0];
+            const values = JSON.parse(data);
+            const keys = Object.keys(values);
+            const call = keys[0];
 
             if (call == "WIDGET_POSITION") {
                 setWidgetPosition(values["WIDGET_POSITION"]);

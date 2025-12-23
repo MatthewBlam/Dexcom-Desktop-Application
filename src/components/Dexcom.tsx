@@ -18,8 +18,8 @@ export interface DexcomProps extends ComponentProps<"div"> {
     mmol_l: string;
 }
 
-const trendVariantsG6 = (variant: Trend) => {
-    const variants = {
+const trendletiantsG6 = (letiant: Trend) => {
+    const letiants = {
         Unavailable: {
             rotate: "rotate-[0deg]",
             arrow: "translate(21px, -21px)",
@@ -61,7 +61,7 @@ const trendVariantsG6 = (variant: Trend) => {
             hidden: false,
         },
     };
-    return variants[variant];
+    return letiants[letiant];
 };
 
 export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
@@ -79,7 +79,7 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
         const highMMOLL = mmol_l >= highSettingMMOLL ? true : false;
         const lowMMOLL = mmol_l <= lowSettingMMOLL ? true : false;
 
-        var circleColor = "#DCDCDC";
+        let circleColor = "#DCDCDC";
         if (unitSetting == "mg/dl") {
             if (high) {
                 circleColor = "#ffcc3d";
@@ -95,7 +95,7 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
                 circleColor = "#f73d45";
             }
         }
-        var textColor = "text-[#373737]";
+        let textColor = "text-[#373737]";
         if (unitSetting == "mg/dl") {
             if (low) {
                 textColor = "text-[#ffffff]";
@@ -106,7 +106,7 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
             }
         }
 
-        const variant = trendVariantsG6(trend);
+        const letiant = trendletiantsG6(trend);
         return (
             <div
                 ref={ref}
@@ -118,7 +118,7 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
                     <div
                         id="dexcom_body"
                         className={twMerge(
-                            variant.rotate,
+                            letiant.rotate,
                             "absolute origin-center left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
                         )}>
                         <svg
@@ -131,7 +131,7 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
                                 d="m124.99987,0h120.00013c2.76143,0,5,2.23858,5,5v120.00012c0,69.03552-55.96436,124.99988-124.99988,124.99988h-.00025C55.96435,250,0,194.03564,0,125.00013v-.00025C0,55.96436,55.96435,0,124.99987,0h0Z"
                                 style={{
                                     fill: "#969596",
-                                    opacity: variant.hidden ? "0" : "1",
+                                    opacity: letiant.hidden ? "0" : "1",
                                 }}
                             />
                             <svg
@@ -144,7 +144,7 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
                                     r="125"
                                     style={{
                                         fill: "#969596",
-                                        opacity: variant.hidden ? "1" : "0",
+                                        opacity: letiant.hidden ? "1" : "0",
                                     }}
                                 />
                             </svg>
@@ -166,7 +166,7 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
                                 d="m205.20251,5.8195c-1.6286,0-2.23545,2.13864-.84385,2.98468,7.34212,4.46376,14.27434,9.87089,20.62076,16.2173,6.34641,6.34641,11.75355,13.27864,16.2173,20.62076.84605,1.3916,2.98468.78476,2.98468-.84385V7.43465c0-.89202-.72313-1.61515-1.61515-1.61515h-37.36375Z"
                                 style={{
                                     fill: "white",
-                                    opacity: variant.hidden ? "0" : "1",
+                                    opacity: letiant.hidden ? "0" : "1",
                                 }}
                             />
                             <path
@@ -174,8 +174,8 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
                                 d="m189.34317,28.7299c-1.33399,0-1.83106,1.75177-.6912,2.44477,6.01396,3.65628,11.69217,8.08529,16.89055,13.28366s9.62738,10.87659,13.28366,16.89055c.693,1.13987,2.44477.6428,2.44477-.6912v-30.6048c0-.73066-.59232-1.32298-1.32298-1.32298h-30.6048Z"
                                 style={{
                                     fill: "white",
-                                    opacity: variant.hidden ? "0" : "1",
-                                    transform: variant.arrow,
+                                    opacity: letiant.hidden ? "0" : "1",
+                                    transform: letiant.arrow,
                                 }}
                             />
                         </svg>
@@ -194,7 +194,7 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
                         <div
                             id="unit"
                             className={twMerge(
-                                variant.hidden ? "opacity-0" : "opacity-100",
+                                letiant.hidden ? "opacity-0" : "opacity-100",
                                 textColor,
                                 "text-[24px] font-medium mt-[-20px] text-nowrap"
                             )}>
@@ -207,8 +207,8 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
     }
 );
 
-const trendVariantsG7 = (variant: Trend) => {
-    const variants = {
+const trendletiantsG7 = (letiant: Trend) => {
+    const letiants = {
         Unavailable: {
             rotate: "rotate-[0deg]",
             reverse: "rotate-[0deg]",
@@ -258,7 +258,7 @@ const trendVariantsG7 = (variant: Trend) => {
             hidden: false,
         },
     };
-    return variants[variant];
+    return letiants[letiant];
 };
 
 export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
@@ -276,7 +276,7 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
         const highMMOLL = mmol_l >= highSettingMMOLL ? true : false;
         const lowMMOLL = mmol_l <= lowSettingMMOLL ? true : false;
 
-        var circleColor = "#ffffff";
+        let circleColor = "#ffffff";
         if (unitSetting == "mg/dl") {
             if (high) {
                 circleColor = "#ffcc3d";
@@ -292,7 +292,7 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                 circleColor = "#f73d45";
             }
         }
-        var textColor = "text-[#373737]";
+        let textColor = "text-[#373737]";
         if (unitSetting == "mg/dl") {
             if (low) {
                 textColor = "text-[#ffffff]";
@@ -302,7 +302,7 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                 textColor = "text-[#ffffff]";
             }
         }
-        var unitTextColor = "text-[#757575]";
+        let unitTextColor = "text-[#757575]";
         if (unitSetting == "mg/dl") {
             if (high) {
                 unitTextColor = "text-[#373737]";
@@ -319,7 +319,7 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
             }
         }
 
-        const variant = trendVariantsG7(trend);
+        const letiant = trendletiantsG7(trend);
         return (
             <div
                 ref={ref}
@@ -334,7 +334,7 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                     <div
                         id="dexcom_body"
                         className={twMerge(
-                            variant.rotate,
+                            letiant.rotate,
                             "drop-shadow-3xl origin-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
                         )}>
                         <svg
@@ -357,7 +357,7 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                                 d="m124.99987,0h120.00013c2.76143,0,5,2.23858,5,5v120.00012c0,69.03552-55.96436,124.99988-124.99988,124.99988h-.00025C55.96435,250,0,194.03564,0,125.00013v-.00025C0,55.96436,55.96435,0,124.99987,0h0Z"
                                 style={{
                                     fill: "#eeedee",
-                                    opacity: variant.hidden ? "0" : "1",
+                                    opacity: letiant.hidden ? "0" : "1",
                                 }}
                             />
                             <svg
@@ -370,14 +370,14 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                                     r="125"
                                     style={{
                                         fill: "#eeedee",
-                                        opacity: variant.hidden ? "1" : "0",
+                                        opacity: letiant.hidden ? "1" : "0",
                                     }}
                                 />
                             </svg>
                             <circle
                                 id="dexcom_circle"
                                 className={twMerge(
-                                    variant.reverse,
+                                    letiant.reverse,
                                     "rounded-full origin-center"
                                 )}
                                 cx="125"
@@ -396,7 +396,7 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                                 d="m244.00235,52.98741c0,.54024-.70822.72554-.97695.25688-5.37431-9.37259-12.06315-18.19753-20.06648-26.20086s-16.82823-14.69214-26.20082-20.06644c-.46866-.26873-.28336-.97695.25688-.97695l46.46137-.00004c.2905,0,.526.2355.526.526v46.46141Z"
                                 style={{
                                     fill: "#373737",
-                                    opacity: variant.hidden ? "0" : "1",
+                                    opacity: letiant.hidden ? "0" : "1",
                                 }}
                             />
                             <path
@@ -404,8 +404,8 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                                 d="m221.48802,59.49568c.00011.52077-.66787.72109-.95812.28871-3.9377-5.86588-8.49775-11.44028-13.68566-16.62819-5.18795-5.18795-10.76235-9.748-16.62823-13.6857-.43238-.29025-.23206-.95824.28871-.95812l30.45087.00659c.29041.00006.52582.23547.52588.52589l.00655,30.45083Z"
                                 style={{
                                     fill: "#373737",
-                                    opacity: variant.hidden ? "0" : "1",
-                                    transform: variant.arrow,
+                                    opacity: letiant.hidden ? "0" : "1",
+                                    transform: letiant.arrow,
                                 }}
                             />
                         </svg>
@@ -425,7 +425,7 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                             id="unit"
                             className={twMerge(
                                 unitTextColor,
-                                variant.hidden ? "opacity-0" : "opacity-100",
+                                letiant.hidden ? "opacity-0" : "opacity-100",
                                 "text-[24px] font-medium mt-[-19px] text-nowrap"
                             )}>
                             {unitSetting === "mg/dl" ? "mg/dL" : "mmol/L"}

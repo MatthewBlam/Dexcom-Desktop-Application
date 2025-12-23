@@ -3,15 +3,24 @@ import { twMerge } from "tailwind-merge";
 import { HTMLMotionProps, motion } from "framer-motion";
 import { Button } from "./Button";
 
+type SettingsPayload = {
+    sensor: string;
+    unit: string;
+    high: number;
+    low: number;
+    highMMOLL: number;
+    lowMMOLL: number;
+};
+
 export interface SettingsProps extends HTMLMotionProps<"div"> {
     active: boolean;
-    closeSettings: Function;
-    storeSettings: Function;
+    closeSettings: () => void;
+    storeSettings: (settings: SettingsPayload) => void;
     settingsTabbable: boolean;
     confirmActive: boolean;
-    openConfirm: Function;
-    closeConfirm: Function;
-    logoutClick: Function;
+    openConfirm: () => void;
+    closeConfirm: (logout?: boolean) => void;
+    logoutClick: () => void;
     confirmTabbable: boolean;
 
     sensorState: string;
@@ -21,12 +30,12 @@ export interface SettingsProps extends HTMLMotionProps<"div"> {
     highMMOLLState: number;
     lowMMOLLState: number;
 
-    setSensorState: Function;
-    setUnitState: Function;
-    setHighState: Function;
-    setLowState: Function;
-    setHighMMOLLState: Function;
-    setLowMMOLLState: Function;
+    setSensorState: (sensor: string) => void;
+    setUnitState: (unit: string) => void;
+    setHighState: (value: number) => void;
+    setLowState: (value: number) => void;
+    setHighMMOLLState: (value: number) => void;
+    setLowMMOLLState: (value: number) => void;
 }
 
 const variants = {
@@ -74,7 +83,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
         const lowElementMMOLL = useRef(null);
 
         function saveSettings() {
-            var settings = {
+            const settings = {
                 sensor: sensorState,
                 unit: unitState,
                 high: highState,
@@ -315,7 +324,7 @@ interface SegmentedButtonProps extends ComponentProps<"div"> {
     activeButton: 1 | 2;
     tabbable: boolean;
     index: number[];
-    changeHandler: Function;
+    changeHandler: (button: 1 | 2) => void;
 }
 
 const SegmentedButton = forwardRef<HTMLDivElement, SegmentedButtonProps>(
@@ -371,7 +380,7 @@ interface ValueBoxProps extends ComponentProps<"div"> {
     max: number;
     tabbable: boolean;
     index: number[];
-    valueBoxHandler: Function;
+    valueBoxHandler: (value: number) => void;
 }
 
 const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
@@ -401,7 +410,7 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
                 <button
                     tabIndex={tabbable ? index[0] : -1}
                     onClick={(e) => {
-                        var newValue = value - 5;
+                        const newValue = value - 5;
                         if (newValue == comparison) {
                             return;
                         }
@@ -431,7 +440,7 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
                 <button
                     tabIndex={tabbable ? index[1] : -1}
                     onClick={(e) => {
-                        var newValue = value + 5;
+                        const newValue = value + 5;
                         if (newValue == comparison) {
                             return;
                         }
@@ -487,7 +496,7 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
                 <button
                     tabIndex={tabbable ? index[0] : -1}
                     onClick={(e) => {
-                        var newValue = value - 0.5;
+                        const newValue = value - 0.5;
                         if (newValue == comparison) {
                             return;
                         }
@@ -517,7 +526,7 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
                 <button
                     tabIndex={tabbable ? index[1] : -1}
                     onClick={(e) => {
-                        var newValue = value + 0.5;
+                        const newValue = value + 0.5;
                         if (newValue == comparison) {
                             return;
                         }

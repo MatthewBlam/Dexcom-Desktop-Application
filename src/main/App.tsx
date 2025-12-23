@@ -304,7 +304,7 @@ const App = () => {
 
         sendMain({ DOM: null });
 
-        var session = sessionStorage.getItem("session");
+        const session = sessionStorage.getItem("session");
         if (session) {
             setCREDENTIALS(true);
             setLOADED(true);
