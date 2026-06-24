@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge";
-import { HTMLMotionProps, motion } from "framer-motion";
+import { HTMLMotionProps, motion } from "motion/react";
 
 export interface RootProps extends HTMLMotionProps<"main"> {
     duration: number;
@@ -15,9 +15,10 @@ export const RootLayout = ({
 }: RootProps) => {
     return (
         <motion.main
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: duration, delay: delay }}
-            className={twMerge("opacity-0 h-full", className)}
+            className={twMerge("h-full", className)}
             {...props}>
             {children}
         </motion.main>

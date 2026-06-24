@@ -1,19 +1,10 @@
 import { ComponentProps, forwardRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { useSettingsContext } from "../contexts/SettingsContext";
-import { HTMLMotionProps, motion } from "framer-motion";
+import { HTMLMotionProps, motion } from "motion/react";
 import { useHistoryContext } from "../contexts/HistoryContext";
-
-interface Reading {
-    id: string;
-    value: number;
-    mmol_l: number;
-    trend: number;
-    trend_direction: string;
-    trend_description: string;
-    trend_arrow: string;
-    date_time: Array<string>;
-}
+import { Reading } from "../shared/types";
+import { getReadingRange } from "../shared/reading-utils";
 
 export interface HistoryProps extends HTMLMotionProps<"div"> {
     open: boolean;
@@ -34,7 +25,7 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(
             <HistoryListItem
                 key={String(d.date_time)}
                 unit={unitSetting}
-                value={unitSetting == "mg/dl" ? d.value : d.mmol_l}
+                value={unitSetting === "mg/dl" ? d.value : d.mmol_l}
                 trendDescription={d.trend_description}
                 trendArrow={d.trend_arrow}
                 time={d.date_time[1]}
@@ -54,22 +45,7 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(
                     className
                 )}
                 {...props}>
-                {
-                    historyElements[0]
-                    /*
-                !open
-                    ? historyElements[0]
-                    : [
-                          historyElements,
-                          historyElements,
-                          historyElements,
-                          historyElements,
-                          historyElements,
-                          historyElements,
-                      ]
-                          unused feature
-                          */
-                }
+                {historyElements[0]}
             </motion.div>
         );
     }
@@ -100,31 +76,17 @@ export const HistoryListItem = forwardRef<HTMLDivElement, HistoryListItemProps>(
         ref
     ) => {
         const { sensorSetting } = useSettingsContext();
-        const G7theme = sensorSetting === "G7" ? true : false;
+        const G7theme = sensorSetting === "G7";
 
         const { highSetting, lowSetting, highSettingMMOLL, lowSettingMMOLL } =
             useSettingsContext();
 
-        const range = () => {
-            console.log(unit);
-            if (unit == "mg/dl") {
-                if (value >= highSetting) {
-                    console.log("yellow");
-                    return "text-dex-yellow";
-                }
-                if (value <= lowSetting) {
-                    return "text-dex-red";
-                }
-            } else {
-                if (value >= highSettingMMOLL) {
-                    return "text-dex-yellow";
-                }
-                if (value <= lowSettingMMOLL) {
-                    return "text-dex-red";
-                }
-            }
-            return "text-dex-green";
-        };
+        const rangeResult = getReadingRange(
+            String(value), String(value),
+            unit as "mg/dl" | "mmol/l",
+            { high: highSetting, low: lowSetting, highMMOLL: highSettingMMOLL, lowMMOLL: lowSettingMMOLL },
+        );
+        const rangeColor = rangeResult === "high" ? "text-dex-yellow" : rangeResult === "low" ? "text-dex-red" : "text-dex-green";
 
         return (
             <div
@@ -137,38 +99,38 @@ export const HistoryListItem = forwardRef<HTMLDivElement, HistoryListItemProps>(
                 {...props}>
                 <div
                     id="icon"
-                    className={twMerge("text-sm font-medium", range())}>
+                    className={twMerge("text-sm font-medium", rangeColor)}>
                     •
                 </div>
                 <div className="flex gap-1">
                     <div
                         id="number"
                         className="text-sm text-dex-text font-medium">
-                        {value == -1 ? "--" : value}
+                        {value === -1 ? "--" : value}
                     </div>
 
                     <div
                         id="trend_arrow"
                         className="text-sm text-dex-text font-medium">
-                        {value == -1 ? "" : trendArrow}
+                        {value === -1 ? "" : trendArrow}
                     </div>
                     <div
                         id="trend_description"
                         className="text-sm text-dex-text font-medium ml-[1px]">
-                        {value == -1 ? "" : trendDescription}
+                        {value === -1 ? "" : trendDescription}
                     </div>
                 </div>
                 <div className="flex gap-2 ml-auto">
                     <div
                         id="time"
                         className="text-sm text-dex-text font-medium">
-                        {value == -1 ? "" : time}
-                        {value == -1 ? "" : ","}
+                        {value === -1 ? "" : time}
+                        {value === -1 ? "" : ","}
                     </div>
                     <div
                         id="date"
                         className="text-sm text-dex-text font-medium">
-                        {value == -1 ? "Unavailable" : date}
+                        {value === -1 ? "Unavailable" : date}
                     </div>
                 </div>
             </div>

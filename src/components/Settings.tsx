@@ -1,41 +1,32 @@
 import { ComponentProps, forwardRef, useRef } from "react";
 import { twMerge } from "tailwind-merge";
-import { HTMLMotionProps, motion } from "framer-motion";
+import { HTMLMotionProps, motion } from "motion/react";
 import { Button } from "./Button";
-
-type SettingsPayload = {
-    sensor: string;
-    unit: string;
-    high: number;
-    low: number;
-    highMMOLL: number;
-    lowMMOLL: number;
-};
 
 export interface SettingsProps extends HTMLMotionProps<"div"> {
     active: boolean;
-    closeSettings: () => void;
-    storeSettings: (settings: SettingsPayload) => void;
+    closeSettings: Function;
+    storeSettings: Function;
     settingsTabbable: boolean;
     confirmActive: boolean;
-    openConfirm: () => void;
-    closeConfirm: (logout?: boolean) => void;
-    logoutClick: () => void;
+    openConfirm: Function;
+    closeConfirm: Function;
+    logoutClick: Function;
     confirmTabbable: boolean;
 
-    sensorState: string;
-    unitState: string;
-    highState: number;
-    lowState: number;
-    highMMOLLState: number;
-    lowMMOLLState: number;
+    sensorState: string | null;
+    unitState: string | null;
+    highState: number | null;
+    lowState: number | null;
+    highMMOLLState: number | null;
+    lowMMOLLState: number | null;
 
-    setSensorState: (sensor: string) => void;
-    setUnitState: (unit: string) => void;
-    setHighState: (value: number) => void;
-    setLowState: (value: number) => void;
-    setHighMMOLLState: (value: number) => void;
-    setLowMMOLLState: (value: number) => void;
+    setSensorState: Function;
+    setUnitState: Function;
+    setHighState: Function;
+    setLowState: Function;
+    setHighMMOLLState: Function;
+    setLowMMOLLState: Function;
 }
 
 const variants = {
@@ -100,6 +91,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
             <>
                 <motion.div
                     variants={variants}
+                    initial="hidden"
                     animate={active ? "visible" : "hidden"}
                     transition={{
                         duration: 0.05,
@@ -109,7 +101,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                     }}
                     ref={ref}
                     className={twMerge(
-                        "bg-dex-bg z-20 drop-shadow-2xl rounded-xl size-fit opacity-0 absolute left-1/2 top-1/2 [@media(max-height:430px)]:top-[53.5%] transition-top duration-1000",
+                        "bg-dex-bg z-20 drop-shadow-2xl rounded-xl size-fit absolute left-1/2 top-1/2 [@media(max-height:430px)]:top-[53.5%] transition-top duration-1000",
                         className
                     )}
                     {...props}>
@@ -124,7 +116,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                                     onClick={() => {
                                         closeSettings();
                                     }}
-                                    className="appearance-none focus-visible:outline-dex-green relative inline-flex ml-auto items-center justify-center size-6 rounded transition-none bg-dex-bg">
+                                    className="cursor-pointer appearance-none focus-visible:outline-dex-green relative inline-flex ml-auto items-center justify-center size-6 rounded transition-none bg-dex-bg">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
@@ -177,7 +169,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                                         </div>
                                         <SegmentedButton
                                             changeHandler={(btn: number) => {
-                                                if (btn == 1) {
+                                                if (btn === 1) {
                                                     setSensorState("G7");
                                                 } else {
                                                     setSensorState("G6");
@@ -229,7 +221,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                                         </div>
                                         <SegmentedButton
                                             changeHandler={(btn: number) => {
-                                                if (btn == 1) {
+                                                if (btn === 1) {
                                                     setUnitState("mg/dl");
                                                 } else {
                                                     setUnitState("mmol/l");
@@ -281,6 +273,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                 <motion.div
                     id="confirmation"
                     variants={variants}
+                    initial="hidden"
                     animate={confirmActive ? "visible" : "hidden"}
                     transition={{
                         duration: 0.05,
@@ -288,7 +281,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                             duration: 0.2,
                         },
                     }}
-                    className="w-max absolute rounded-lg bg-dex-bg drop-shadow-2xl opacity-0 left-1/2 top-1/2 p-6 z-30">
+                    className="w-max absolute rounded-lg bg-dex-bg drop-shadow-2xl left-1/2 top-1/2 p-6 z-30">
                     <div className="text-nowrap mb-1 text-lg font-semibold text-dex-text">
                         Confirm
                     </div>
@@ -324,7 +317,7 @@ interface SegmentedButtonProps extends ComponentProps<"div"> {
     activeButton: 1 | 2;
     tabbable: boolean;
     index: number[];
-    changeHandler: (button: 1 | 2) => void;
+    changeHandler: Function;
 }
 
 const SegmentedButton = forwardRef<HTMLDivElement, SegmentedButtonProps>(
@@ -356,7 +349,7 @@ const SegmentedButton = forwardRef<HTMLDivElement, SegmentedButtonProps>(
                         changeHandler(1);
                     }}
                     data-state={activeButton === 1 ? "active" : ""}
-                    className="focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
+                    className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
                     {buttonOne}
                 </button>
                 <button
@@ -365,7 +358,7 @@ const SegmentedButton = forwardRef<HTMLDivElement, SegmentedButtonProps>(
                         changeHandler(2);
                     }}
                     data-state={activeButton === 2 ? "active" : ""}
-                    className="focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
+                    className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
                     {buttonTwo}
                 </button>
             </div>
@@ -374,13 +367,13 @@ const SegmentedButton = forwardRef<HTMLDivElement, SegmentedButtonProps>(
 );
 
 interface ValueBoxProps extends ComponentProps<"div"> {
-    value: number;
-    comparison: number;
+    value: number | null;
+    comparison: number | null;
     min: number;
     max: number;
     tabbable: boolean;
     index: number[];
-    valueBoxHandler: (value: number) => void;
+    valueBoxHandler: Function;
 }
 
 const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
@@ -388,7 +381,7 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
         {
             children,
             className,
-            value,
+            value: valueProp,
             comparison,
             min,
             max,
@@ -399,6 +392,7 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
         },
         ref
     ) => {
+        let value = valueProp ?? 0;
         return (
             <div
                 ref={ref}
@@ -411,7 +405,7 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
                     tabIndex={tabbable ? index[0] : -1}
                     onClick={(e) => {
                         const newValue = value - 5;
-                        if (newValue == comparison) {
+                        if (newValue === comparison) {
                             return;
                         }
                         if (newValue >= min) {
@@ -419,7 +413,7 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
                             value = newValue;
                         }
                     }}
-                    className="focus-visible:outline-dex-green outline-transparent outline outline-2 mr-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
+                    className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 mr-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -441,7 +435,7 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
                     tabIndex={tabbable ? index[1] : -1}
                     onClick={(e) => {
                         const newValue = value + 5;
-                        if (newValue == comparison) {
+                        if (newValue === comparison) {
                             return;
                         }
                         if (newValue <= max) {
@@ -449,7 +443,7 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
                             value = newValue;
                         }
                     }}
-                    className="focus-visible:outline-dex-green outline-transparent outline outline-2 ml-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
+                    className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 ml-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -474,7 +468,7 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
         {
             children,
             className,
-            value,
+            value: valueProp,
             comparison,
             min,
             max,
@@ -485,6 +479,7 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
         },
         ref
     ) => {
+        let value = valueProp ?? 0;
         return (
             <div
                 ref={ref}
@@ -497,7 +492,7 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
                     tabIndex={tabbable ? index[0] : -1}
                     onClick={(e) => {
                         const newValue = value - 0.5;
-                        if (newValue == comparison) {
+                        if (newValue === comparison) {
                             return;
                         }
                         if (newValue >= min) {
@@ -505,7 +500,7 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
                             value = newValue;
                         }
                     }}
-                    className="focus-visible:outline-dex-green outline-transparent outline outline-2 mr-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
+                    className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 mr-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -527,7 +522,7 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
                     tabIndex={tabbable ? index[1] : -1}
                     onClick={(e) => {
                         const newValue = value + 0.5;
-                        if (newValue == comparison) {
+                        if (newValue === comparison) {
                             return;
                         }
                         if (newValue <= max) {
@@ -535,7 +530,7 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
                             value = newValue;
                         }
                     }}
-                    className="focus-visible:outline-dex-green outline-transparent outline outline-2 ml-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
+                    className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 ml-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"

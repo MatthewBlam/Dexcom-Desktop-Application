@@ -9,27 +9,8 @@ import {
     SettingsIcon,
 } from "../components/Icons";
 import { History } from "../components/History";
-
-type Trend =
-    | "Unavailable"
-    | "DoubleUp"
-    | "SingleUp"
-    | "FortyFiveUp"
-    | "Flat"
-    | "FortyFiveDown"
-    | "SingleDown"
-    | "DoubleDown";
-
-interface Reading {
-    id: string;
-    value: number;
-    mmol_l: number;
-    trend: number;
-    trend_direction: string;
-    trend_description: string;
-    trend_arrow: string;
-    date_time: Array<string>;
-}
+import { Reading } from "../shared/types";
+import { formatReading } from "../shared/reading-utils";
 
 export interface DisplayProps extends ComponentProps<"div"> {
     reading: Reading;
@@ -54,27 +35,8 @@ export const Display = forwardRef<HTMLDivElement, DisplayProps>(
         ref
     ) => {
         const { sensorSetting } = useSettingsContext();
-        const G7theme = sensorSetting === "G7" ? true : false;
-
-        let t = reading.trend_direction;
-        if (t == "None" || t == "NotComputable" || t == "RateOutOfRange") {
-            t = "Unavailable";
-        }
-        let v;
-        if (reading.value == -1) {
-            v = "--";
-        } else {
-            v = reading.value;
-        }
-        let m;
-        if (reading.mmol_l == -1) {
-            m = "--";
-        } else {
-            m = reading.mmol_l;
-        }
-        const trend: Trend = t as Trend;
-        const mg_dl = v;
-        const mmol_l = m;
+        const G7theme = sensorSetting === "G7";
+        const { trend, mg_dl, mmol_l } = formatReading(reading);
 
         return (
             <div

@@ -1,45 +1,13 @@
-import { useCallback, StrictMode, useEffect, useRef, useState } from "react";
+import { StrictMode, useEffect, useRef, useState } from "react";
 import { RootLayout } from "../components/RootLayout";
 import "inter-ui/inter.css";
 import { useSettingsContext } from "../contexts/SettingsContext";
 import { DexcomG6, DexcomG7 } from "../components/Dexcom";
-import { motion } from "framer-motion";
-
-type Trend =
-    | "Unavailable"
-    | "DoubleUp"
-    | "SingleUp"
-    | "FortyFiveUp"
-    | "Flat"
-    | "FortyFiveDown"
-    | "SingleDown"
-    | "DoubleDown";
-
-interface Reading {
-    id: string;
-    value: number;
-    mmol_l: number;
-    trend: number;
-    trend_direction: string;
-    trend_description: string;
-    trend_arrow: string;
-    date_time: Array<string>;
-}
-
-interface Settings {
-    sensor: "G6" | "G7";
-    unit: "mg/dl" | "mmol/l";
-    high: number;
-    low: number;
-    highMMOLL: number;
-    lowMMOLL: number;
-}
+import { motion } from "motion/react";
+import { Reading, Settings, DEFAULT_READING } from "../shared/types";
+import { formatReading } from "../shared/reading-utils";
 
 const Widget = () => {
-    const sendMain = useCallback((message: object) => {
-        window.api.send("toMain", JSON.stringify(message));
-    }, []);
-
     const [mouseInteractive, setMouseInteractive] = useState(false);
 
     const [widgetPosition, setWidgetPosition] = useState(["0px", "0px"]);
@@ -61,7 +29,7 @@ const Widget = () => {
         setWidgetOpen,
     } = useSettingsContext();
 
-    function setSettings(settings: Settings) {
+    function applySettings(settings: Settings) {
         setSensorSetting(settings.sensor);
         setUnitSetting(settings.unit);
         setHighSetting(settings.high);
@@ -70,76 +38,52 @@ const Widget = () => {
         setLowSettingMMOLL(settings.lowMMOLL);
     }
 
-    const G7theme = sensorSetting === "G7" ? true : false;
+    const G7theme = sensorSetting === "G7";
 
     const containerRef = useRef<HTMLDivElement | null>(null);
 
-    const [reading, setReading] = useState<Reading>({
-        id: "Unavailable",
-        value: -1,
-        mmol_l: -1,
-        trend: 0,
-        trend_direction: "Unavailable",
-        trend_description: "Unavailable",
-        trend_arrow: "Unavailable",
-        date_time: ["Unavailable", "Unavailable"],
-    });
-
-    let t = reading.trend_direction;
-    if (t == "None" || t == "NotComputable" || t == "RateOutOfRange") {
-        t = "Unavailable";
-    }
-    let v;
-    if (reading.value == -1) {
-        v = "--";
-    } else {
-        v = reading.value;
-    }
-    let m;
-    if (reading.mmol_l == -1) {
-        m = "--";
-    } else {
-        m = reading.mmol_l;
-    }
-    const trend: Trend = t as Trend;
-    const mg_dl = v;
-    const mmol_l = m;
+    const [reading, setReading] = useState<Reading>(DEFAULT_READING);
+    const { trend, mg_dl, mmol_l } = formatReading(reading);
 
     function widgetDragHandler() {
-        const widgey = containerRef.current.firstChild as HTMLElement;
+        const widgey = containerRef.current?.firstChild as HTMLElement | undefined;
+        if (!widgey) return;
         const bounds = widgey.getBoundingClientRect();
         const left = String(bounds.left) + "px";
         const top = String(bounds.top) + "px";
-        console.log(left, top);
-        sendMain({ STORE_WIDGET: [left, top] });
+        window.api.saveWidgetPosition([left, top]);
     }
 
     useEffect(() => {
-        const widgey = containerRef.current.firstChild as HTMLElement;
+        const widgey = containerRef.current?.firstChild as HTMLElement | undefined;
+        if (!widgey) return;
         widgey.style.left = widgetPosition[0];
         widgey.style.top = widgetPosition[1];
-    }, widgetPosition);
+    }, [widgetPosition]);
 
     useEffect(() => {
         setMouseInteractive(false);
         const interactiveElements = document.querySelectorAll(".interactive");
+        const mouseHandlers: Array<{ element: Element; type: string; handler: () => void }> = [];
         interactiveElements.forEach((element) => {
-            element.addEventListener("mouseenter", () => {
+            const enterHandler = () => {
                 setMouseInteractive(true);
-                sendMain({ SET_IGNORE_MOUSE: [false, null] });
-            });
-
-            element.addEventListener("mouseleave", () => {
+                window.api.setIgnoreMouseEvents(false, null);
+            };
+            const leaveHandler = () => {
                 setMouseInteractive(false);
-                sendMain({
-                    SET_IGNORE_MOUSE: [true, { forward: true }],
-                });
-            });
+                window.api.setIgnoreMouseEvents(true, { forward: true });
+            };
+            element.addEventListener("mouseenter", enterHandler);
+            element.addEventListener("mouseleave", leaveHandler);
+            mouseHandlers.push(
+                { element, type: "mouseenter", handler: enterHandler },
+                { element, type: "mouseleave", handler: leaveHandler },
+            );
         });
 
-        sendMain({ GET_WIDGET: null });
-
-        const widgey = containerRef.current.firstChild as HTMLElement;
+        const widgey = containerRef.current?.firstChild as HTMLElement | undefined;
+        if (!widgey) return;
         if (!widgetPosition) {
             widgey.style.left = "0px";
             widgey.style.top = "0px";
@@ -148,33 +92,34 @@ const Widget = () => {
         widgey.style.left = widgetPosition[0];
         widgey.style.top = widgetPosition[1];
 
-        sendMain({ GET_READING: null });
-
-        sendMain({ INIT_WIDGET_SETTINGS: null });
-
-        sendMain({
-            SET_IGNORE_MOUSE: [true, { forward: true }],
+        // Fetch initial state
+        window.api.getWidgetPosition().then((pos) => {
+            setWidgetPosition(pos);
         });
-
-        window.api.receive("toRender", (data: string) => {
-            const values = JSON.parse(data);
-            const keys = Object.keys(values);
-            const call = keys[0];
-
-            if (call == "WIDGET_POSITION") {
-                setWidgetPosition(values["WIDGET_POSITION"]);
-            }
-
-            if (call == "SETTINGS") {
-                setSettings(values["SETTINGS"]);
-            }
-
-            if (call == "READING") {
-                const reading = values["READING"];
-                console.log("Received Reading:", reading);
-                setReading(reading);
-            }
+        window.api.getCurrentReading().then((r) => {
+            setReading(r);
         });
+        window.api.getSettings().then((settings) => {
+            applySettings(settings);
+        });
+        window.api.setIgnoreMouseEvents(true, { forward: true });
+
+        // Subscribe to push events
+        const unsubs = [
+            window.api.onSettings((settings) => {
+                applySettings(settings);
+            }),
+            window.api.onReading((r) => {
+                setReading(r);
+            }),
+        ];
+
+        return () => {
+            unsubs.forEach((fn) => fn());
+            mouseHandlers.forEach(({ element, type, handler }) => {
+                element.removeEventListener(type, handler);
+            });
+        };
     }, []);
 
     return (

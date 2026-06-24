@@ -1,4 +1,4 @@
-import { StrictMode, useCallback, useEffect, useState, useRef } from "react";
+import { StrictMode, useEffect, useState, useRef } from "react";
 import { useSettingsContext } from "../contexts/SettingsContext";
 import { useHistoryContext } from "../contexts/HistoryContext";
 import { DraggableTopBar } from "../components/DraggableTopBar";
@@ -7,32 +7,13 @@ import { RootLayout } from "../components/RootLayout";
 import { ErrorToast } from "../components/ErrorToast";
 import { Settings } from "../components/Settings";
 import { Button } from "../components/Button";
-import { motion, useAnimate } from "framer-motion";
+import { motion, useAnimate } from "motion/react";
 import { twMerge } from "tailwind-merge";
 import { Display } from "./Display";
 import { Login } from "./Login";
 import "inter-ui/inter.css";
 import clsx from "clsx";
-
-interface Settings {
-    sensor: "G6" | "G7";
-    unit: "mg/dl" | "mmol/l";
-    high: number;
-    low: number;
-    highMMOLL: number;
-    lowMMOLL: number;
-}
-
-interface Reading {
-    id: string;
-    value: number;
-    mmol_l: number;
-    trend: number;
-    trend_direction: string;
-    trend_description: string;
-    trend_arrow: string;
-    date_time: Array<string>;
-}
+import { Reading, Settings as SettingsType, DEFAULT_READING } from "../shared/types";
 
 const variants = {
     hidden: { opacity: 0, scale: 0, x: "-50%", y: "-50%" },
@@ -40,10 +21,6 @@ const variants = {
 };
 
 const App = () => {
-    const sendMain = useCallback((message: object) => {
-        window.api.send("toMain", JSON.stringify(message));
-    }, []);
-
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const {
         sensorSetting,
@@ -62,23 +39,25 @@ const App = () => {
         setWidgetOpen,
     } = useSettingsContext();
 
-    const G7theme = sensorSetting === "G7" ? true : false;
-    if (G7theme) {
-        document.body.style.backgroundColor = "#e6e6e6";
-    } else {
-        document.body.style.backgroundColor = "#ffffff";
-    }
+    const G7theme = sensorSetting === "G7";
 
-    const [sensorState, setSensorState] = useState(null);
-    const [unitState, setUnitState] = useState(null);
-    const [highState, setHighState] = useState(null);
-    const [lowState, setLowState] = useState(null);
-    const [highMMOLLState, setHighMMOLLState] = useState(null);
-    const [lowMMOLLState, setLowMMOLLState] = useState(null);
+    useEffect(() => {
+        document.body.style.backgroundColor = G7theme ? "#e6e6e6" : "#ffffff";
+    }, [G7theme]);
+
+    const [sensorState, setSensorState] = useState<string | null>(null);
+    const [unitState, setUnitState] = useState<string | null>(null);
+    const [highState, setHighState] = useState<number | null>(null);
+    const [lowState, setLowState] = useState<number | null>(null);
+    const [highMMOLLState, setHighMMOLLState] = useState<number | null>(null);
+    const [lowMMOLLState, setLowMMOLLState] = useState<number | null>(null);
     const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
 
-    function openSettings() {
-        sendMain({ GET_SETTINGS: null });
+    async function openSettings() {
+        const settings = await window.api.getSettings();
+        applySettings(settings);
+        setDimmerOn(true);
+        setSettingsOpen(true);
     }
 
     function closeSettings() {
@@ -86,7 +65,7 @@ const App = () => {
         setSettingsOpen(false);
     }
 
-    function setSettings(settings: Settings) {
+    function applySettings(settings: SettingsType) {
         console.log("UPDATING SETTINGS WITH RETRIEVED", settings);
         setSensorSetting(settings.sensor);
         setUnitSetting(settings.unit);
@@ -103,28 +82,28 @@ const App = () => {
         setLowMMOLLState(settings.lowMMOLL);
     }
 
-    function storeSettings(settings: Settings) {
-        sendMain({ STORE_SETTINGS: settings });
-        setSettings(settings);
+    function storeSettings(settings: SettingsType) {
+        window.api.saveSettings(settings);
+        applySettings(settings);
     }
 
     function toggleWidget() {
         if (!widgetOpen) {
-            sendMain({ OPEN_WIDGET: null });
+            window.api.openWidget(null);
             setWidgetOpen(true);
         } else {
-            sendMain({ CLOSE_WIDGET: null });
+            window.api.closeWidget();
             setWidgetOpen(false);
         }
     }
 
     function trayOpenWidget() {
-        sendMain({ OPEN_WIDGET: "NOFOCUS" });
+        window.api.openWidget("NOFOCUS");
         setWidgetOpen(true);
     }
 
     function trayCloseWidget() {
-        sendMain({ CLOSE_WIDGET: null });
+        window.api.closeWidget();
         setWidgetOpen(false);
     }
 
@@ -134,11 +113,11 @@ const App = () => {
             hasPageRendered.current = true;
             return;
         }
-        sendMain({ STORE_WIDGET_OPEN: widgetOpen });
+        window.api.saveWidgetOpenState(widgetOpen);
     }, [widgetOpen]);
 
     const [LOADED, setLOADED] = useState<boolean>(false);
-    const [CREDENTIALS, setCREDENTIALS] = useState<boolean>(false);
+    const [CREDENTIALS, setCREDENTIALS] = useState<boolean | undefined>(false);
 
     const [userVal, setUserVal] = useState<string>("");
     const [passwordVal, setPasswordVal] = useState<string>("");
@@ -160,7 +139,7 @@ const App = () => {
     };
 
     const loginClick = () => {
-        if (userVal == "" || passwordVal == "") {
+        if (userVal === "" || passwordVal === "") {
             setErrorText("Please provide both email and password");
             setErrorActive(true);
             setCREDENTIALS(undefined);
@@ -169,17 +148,15 @@ const App = () => {
         }
         setErrorActive(false);
         setDisableForm(true);
-        sendMain({
-            LOGIN: { user: userVal, password: passwordVal, ous: ousChecked },
-        });
+        window.api.login({ user: userVal, password: passwordVal, ous: ousChecked });
     };
 
     const logoutClick = () => {
-        sendMain({ TERMINATE: "TERMINATE" });
+        window.api.logout();
         if (widgetOpen) {
             toggleWidget();
         }
-        sendMain({ STORE_WIDGET_OPEN: false });
+        window.api.saveWidgetOpenState(false);
         setErrorActive(false);
         setDisableForm(false);
         setCREDENTIALS(false);
@@ -240,7 +217,7 @@ const App = () => {
         closeDisplayPage();
         setLoginOpen(true);
         setDimmerFlashingOn(false);
-        sendMain({ RESET_TRAY: null });
+        window.api.resetTray();
     }
 
     function openDisplayPage() {
@@ -251,7 +228,12 @@ const App = () => {
         );
         closeLoginPage();
         setDisplayOpen(true);
-        sendMain({ GET_WIDGET_OPEN: null });
+        window.api.getWidgetOpenState().then((open) => {
+            if (open && !widgetOpen) {
+                toggleWidget();
+            }
+            window.api.setTrayWidgetState(open);
+        });
         setDimmerFlashingOn(false);
     }
 
@@ -269,16 +251,7 @@ const App = () => {
         setConfirmOpen(false);
     }
 
-    const [currentReading, setCurrentReading] = useState<Reading>({
-        id: "Unavailable",
-        value: -1,
-        mmol_l: -1,
-        trend: 0,
-        trend_direction: "Unavailable",
-        trend_description: "Unavailable",
-        trend_arrow: "Unavailable",
-        date_time: ["Unavailable", "Unavailable"],
-    });
+    const [currentReading, setCurrentReading] = useState<Reading>(DEFAULT_READING);
     const { historyItems, setHistoryItems } = useHistoryContext();
 
     const [pythonError, setPythonError] = useState(false);
@@ -294,7 +267,7 @@ const App = () => {
     }
 
     function restartApp() {
-        sendMain({ RESTART: null });
+        window.api.restart();
     }
 
     useEffect(() => {
@@ -302,31 +275,31 @@ const App = () => {
         closeLoginPage();
         closeDisplayPage();
 
-        sendMain({ DOM: null });
-
-        const session = sessionStorage.getItem("session");
-        if (session) {
-            setCREDENTIALS(true);
-            setLOADED(true);
-            openDisplayPage();
-        }
-
-        window.api.receive("toRender", (data: string) => {
-            const values = JSON.parse(data);
-            const keys = Object.keys(values);
-            const call = keys[0];
-
-            if (call == "LOG") {
-                console.log(values["LOG"]);
-            }
-
-            if (call == "PYTHON_ERROR") {
-                openPythonError();
-            }
-
-            if (call == "AUTH_ERROR") {
+        // Initialize: get settings and trigger stored credential login
+        window.api.domReady().then(({ settings, hasCredentials }) => {
+            applySettings(settings);
+            setIsSettingsLoaded(true);
+            if (!hasCredentials) {
                 setLOADED(true);
-                const error = values["AUTH_ERROR"];
+                openLoginPage();
+            }
+        }).catch((err) => {
+            console.error("domReady failed:", err);
+            setLOADED(true);
+            openLoginPage();
+        });
+
+        // Subscribe to push events
+        const unsubs = [
+            window.api.onLog((messages) => {
+                console.log(...messages);
+            }),
+            window.api.onPythonError(() => {
+                setLOADED(true);
+                openPythonError();
+            }),
+            window.api.onAuthError((error) => {
+                setLOADED(true);
                 if (error) {
                     setErrorText(error);
                     setErrorActive(true);
@@ -336,61 +309,37 @@ const App = () => {
                 setPasswordVal("");
                 setDisableForm(false);
                 openLoginPage();
-            }
-
-            if (call == "CREDENTIALS") {
+            }),
+            window.api.onAuthSuccess(() => {
                 setLOADED(true);
                 setCREDENTIALS(true);
                 openDisplayPage();
                 sessionStorage.setItem("session", "true");
-            }
-
-            if (call == "INIT_SETTINGS") {
-                setSettings(values["INIT_SETTINGS"]);
-                setIsSettingsLoaded(true);
-            }
-
-            if (call == "OPEN_SETTINGS") {
-                setSettings(values["OPEN_SETTINGS"]);
-                setDimmerOn(true);
-                setSettingsOpen(true);
-            }
-
-            if (call == "KILLED_PYTHON") {
+            }),
+            window.api.onPythonKilled(() => {
                 setDimmerFlashingOn(false);
                 openLoginPage();
-            }
-
-            if (call == "WIDGET_OPEN") {
-                const open = values["WIDGET_OPEN"];
-                if (open && !widgetOpen) {
-                    toggleWidget();
-                }
-                sendMain({ SET_TRAY: open });
-            }
-
-            if (call == "CLOSE_WIDGET") {
+            }),
+            window.api.onCloseWidget(() => {
                 setWidgetOpen(false);
-            }
-
-            if (call == "TRAY_OPEN_WIDGET") {
+            }),
+            window.api.onTrayOpenWidget(() => {
                 trayOpenWidget();
-            }
-
-            if (call == "TRAY_CLOSE_WIDGET") {
+            }),
+            window.api.onTrayCloseWidget(() => {
                 trayCloseWidget();
-            }
-
-            if (call == "READING") {
-                const newReading = values["READING"];
+            }),
+            window.api.onReading((newReading) => {
                 console.log("Received Reading:", newReading);
                 setCurrentReading(newReading);
-                setHistoryItems((historyItems: string | any[]) =>
-                    [newReading].concat(historyItems)
+                setHistoryItems((prev: Reading[]) =>
+                    [newReading].concat(prev)
                 );
-                sendMain({ STORE_READING: newReading });
-            }
-        });
+                window.api.saveReading(newReading);
+            }),
+        ];
+
+        return () => { unsubs.forEach((fn) => fn()); };
     }, []);
 
     const keyID = String(new Date().getTime());
@@ -401,15 +350,16 @@ const App = () => {
             <RootLayout
                 duration={1}
                 delay={0.5}
+                animate={LOADED ? { opacity: 1 } : { opacity: 0 }}
                 className={twMerge(
                     "mt-10 w-full",
                     G7theme ? "bg-dex-fg" : "bg-dex-bg",
-                    clsx({ hidden: !LOADED })
                 )}>
                 <motion.div
                     ref={loginScope}
+                    initial={{ x: "-200%" }}
                     className={twMerge(
-                        "absolute left-1/2 -translate-x-1/2 w-full h-full flex justify-center items-center",
+                        "absolute left-1/2 w-full h-full flex justify-center items-center",
                         clsx({ "pointer-events-none": CREDENTIALS })
                     )}>
                     <Login
@@ -433,8 +383,9 @@ const App = () => {
 
                 <motion.div
                     ref={displayScope}
+                    initial={{ x: "200%" }}
                     className={twMerge(
-                        "absolute left-1/2 -translate-x-1/2 w-full h-full flex flex-col justify-center items-center",
+                        "absolute left-1/2 w-full h-full flex flex-col justify-center items-center",
                         clsx({
                             "pointer-events-none": !CREDENTIALS,
                         })
@@ -455,7 +406,7 @@ const App = () => {
                 </motion.div>
 
                 <ErrorToast
-                    className="absolute left-1/2 -translate-x-1/2 bottom-[-384px] max-w-[90%]"
+                    className="absolute left-1/2 bottom-[-384px] max-w-[90%]"
                     active={errorActive}
                     text={errorText}
                     close={() => {
@@ -499,6 +450,7 @@ const App = () => {
             <motion.div
                 id="pythonError"
                 variants={variants}
+                initial="hidden"
                 animate={pythonError ? "visible" : "hidden"}
                 transition={{
                     duration: 0.05,
@@ -506,7 +458,7 @@ const App = () => {
                         duration: 0.2,
                     },
                 }}
-                className="w-max absolute rounded-lg bg-dex-bg drop-shadow-2xl opacity-0 left-1/2 top-1/2 p-6 z-30">
+                className="w-max absolute rounded-lg bg-dex-bg drop-shadow-2xl left-1/2 top-1/2 p-6 z-30">
                 <div className="text-nowrap mb-1 text-lg font-semibold text-dex-text">
                     Dexcom process error
                 </div>

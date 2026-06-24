@@ -1,6 +1,7 @@
 import type { ConfigEnv, UserConfig } from "vite";
 import { defineConfig } from "vite";
 import { pluginExposeRenderer } from "./vite.base.config";
+import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 // https://vitejs.dev/config
@@ -19,7 +20,7 @@ export default defineConfig((env) => {
                 input: path.resolve(__dirname, "src", "widget", "index.html"), // Entry point
             },
         },
-        plugins: [pluginExposeRenderer(name)],
+        plugins: [pluginExposeRenderer(name), tailwindcss()],
         resolve: {
             preserveSymlinks: true,
         },

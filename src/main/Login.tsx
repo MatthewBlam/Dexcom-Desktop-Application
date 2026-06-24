@@ -55,11 +55,11 @@ export const Login = forwardRef<HTMLDivElement, LoginProps>(
                     change={userChange}
                     disabled={disabled}
                     onKeyDownCapture={(e) => {
-                        if (e.key == "Enter") {
+                        if (e.key === "Enter") {
                             (
                                 e.currentTarget.nextElementSibling
-                                    .childNodes[1] as HTMLElement
-                            ).focus();
+                                    ?.childNodes[1] as HTMLElement | undefined
+                            )?.focus();
                         }
                     }}></TextInput>
                 <TextInput
@@ -71,11 +71,11 @@ export const Login = forwardRef<HTMLDivElement, LoginProps>(
                     password={true}
                     disabled={disabled}
                     onKeyDownCapture={(e) => {
-                        if (e.key == "Enter") {
+                        if (e.key === "Enter") {
                             (
-                                e.currentTarget.nextElementSibling.childNodes[0]
-                                    .childNodes[0] as HTMLElement
-                            ).focus();
+                                e.currentTarget.nextElementSibling?.childNodes[0]
+                                    ?.childNodes[0] as HTMLElement | undefined
+                            )?.focus();
                         }
                     }}></TextInput>
                 <Checkbox
@@ -86,7 +86,7 @@ export const Login = forwardRef<HTMLDivElement, LoginProps>(
                     change={ousChange}
                     disabled={disabled}
                     onKeyDownCapture={(e) => {
-                        if (e.key == "Enter") {
+                        if (e.key === "Enter") {
                             (
                                 e.currentTarget.childNodes[0]
                                     .childNodes[0] as HTMLElement

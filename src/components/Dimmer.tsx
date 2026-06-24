@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge";
 import { DraggableTopBar } from "./DraggableTopBar";
-import { motion, HTMLMotionProps, AnimatePresence } from "framer-motion";
+import { motion, HTMLMotionProps, AnimatePresence } from "motion/react";
 import clsx from "clsx";
 
 const variants = {
@@ -18,12 +18,13 @@ export const Dimmer = ({ active, className, ...props }: DimmerProps) => {
     return (
         <motion.div
             variants={variants}
+            initial="hidden"
             animate={active ? "visible" : "hidden"}
             transition={{
                 duration: 0.3,
             }}
             className={twMerge(
-                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-dex-text z-10 opacity-0",
+                "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-dex-text z-10",
                 clsx({ "pointer-events-none": !active }),
                 className
             )}
@@ -60,7 +61,7 @@ export const DimmerFlashing = ({
                         ease: "linear",
                     }}
                     className={twMerge(
-                        "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-dex-text z-10 opacity-0",
+                        "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-dex-text z-10",
                         clsx({ "pointer-events-none": !active }),
                         className
                     )}

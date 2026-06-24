@@ -14,7 +14,6 @@ export default defineConfig((env) => {
         input: forgeConfigSelf.entry!,
         output: {
           format: 'cjs',
-          // It should not be split chunks.
           inlineDynamicImports: true,
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',

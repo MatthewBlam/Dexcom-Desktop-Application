@@ -1,6 +1,6 @@
 import { forwardRef, MouseEventHandler } from "react";
 import { twMerge } from "tailwind-merge";
-import { HTMLMotionProps, motion } from "framer-motion";
+import { HTMLMotionProps, motion } from "motion/react";
 
 export interface ErrorToastProps extends HTMLMotionProps<"div"> {
     active: boolean;
@@ -18,6 +18,7 @@ export const ErrorToast = forwardRef<HTMLDivElement, ErrorToastProps>(
         return (
             <motion.div
                 variants={variants}
+                initial="hidden"
                 animate={active ? "visible" : "hidden"}
                 transition={{
                     ease: "linear",
