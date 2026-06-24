@@ -1,6 +1,23 @@
 import { createContext, ReactNode, useContext, useState } from "react";
 
-export const SettingsContext = createContext(null);
+interface SettingsContextValue {
+    sensorSetting: "G6" | "G7";
+    setSensorSetting: React.Dispatch<React.SetStateAction<"G6" | "G7">>;
+    unitSetting: "mg/dl" | "mmol/l";
+    setUnitSetting: React.Dispatch<React.SetStateAction<"mg/dl" | "mmol/l">>;
+    highSetting: number;
+    setHighSetting: React.Dispatch<React.SetStateAction<number>>;
+    lowSetting: number;
+    setLowSetting: React.Dispatch<React.SetStateAction<number>>;
+    highSettingMMOLL: number;
+    setHighSettingMMOLL: React.Dispatch<React.SetStateAction<number>>;
+    lowSettingMMOLL: number;
+    setLowSettingMMOLL: React.Dispatch<React.SetStateAction<number>>;
+    widgetOpen: boolean;
+    setWidgetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const SettingsContext = createContext<SettingsContextValue | null>(null);
 
 export interface SettingsContextProviderProps {
     children: ReactNode;

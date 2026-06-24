@@ -74,7 +74,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
         const lowElementMMOLL = useRef(null);
 
         function saveSettings() {
-            var settings = {
+            const settings = {
                 sensor: sensorState,
                 unit: unitState,
                 high: highState,
@@ -168,7 +168,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                                         </div>
                                         <SegmentedButton
                                             changeHandler={(btn: number) => {
-                                                if (btn == 1) {
+                                                if (btn === 1) {
                                                     setSensorState("G7");
                                                 } else {
                                                     setSensorState("G6");
@@ -220,7 +220,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                                         </div>
                                         <SegmentedButton
                                             changeHandler={(btn: number) => {
-                                                if (btn == 1) {
+                                                if (btn === 1) {
                                                     setUnitState("mg/dl");
                                                 } else {
                                                     setUnitState("mmol/l");
@@ -401,8 +401,8 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
                 <button
                     tabIndex={tabbable ? index[0] : -1}
                     onClick={(e) => {
-                        var newValue = value - 5;
-                        if (newValue == comparison) {
+                        const newValue = value - 5;
+                        if (newValue === comparison) {
                             return;
                         }
                         if (newValue >= min) {
@@ -431,8 +431,8 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
                 <button
                     tabIndex={tabbable ? index[1] : -1}
                     onClick={(e) => {
-                        var newValue = value + 5;
-                        if (newValue == comparison) {
+                        const newValue = value + 5;
+                        if (newValue === comparison) {
                             return;
                         }
                         if (newValue <= max) {
@@ -487,8 +487,8 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
                 <button
                     tabIndex={tabbable ? index[0] : -1}
                     onClick={(e) => {
-                        var newValue = value - 0.5;
-                        if (newValue == comparison) {
+                        const newValue = value - 0.5;
+                        if (newValue === comparison) {
                             return;
                         }
                         if (newValue >= min) {
@@ -517,8 +517,8 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
                 <button
                     tabIndex={tabbable ? index[1] : -1}
                     onClick={(e) => {
-                        var newValue = value + 0.5;
-                        if (newValue == comparison) {
+                        const newValue = value + 0.5;
+                        if (newValue === comparison) {
                             return;
                         }
                         if (newValue <= max) {

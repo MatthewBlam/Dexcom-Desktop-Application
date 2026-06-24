@@ -10,9 +10,11 @@ import {
     nativeImage,
     screen,
     powerMonitor,
+    shell,
 } from "electron";
-const { spawn } = require("child_process");
-const Store = require("electron-store");
+import { spawn } from "child_process";
+import Store from "electron-store";
+import electronSquirrelStartup from "electron-squirrel-startup";
 import path from "path";
 import {
     Reading,
@@ -24,13 +26,13 @@ import {
 } from "./shared/types";
 
 // Globals
-var Python: python;
-var Win: BrowserWindow;
-var Widget: BrowserWindow;
-var widgetOpen: boolean = false;
+let Python: python;
+let Win: BrowserWindow;
+let Widget: BrowserWindow;
+let widgetOpen: boolean = false;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
+if (electronSquirrelStartup) {
     app.quit();
 }
 
@@ -54,22 +56,22 @@ ipcMain.on("toMain", (event, args) => {
     const keys = Object.keys(values);
     const call = keys[0];
 
-    if (call == "RESTART") {
+    if (call === "RESTART") {
         app.relaunch();
         app.quit();
     }
 
-    if (call == "RESET_TRAY") {
+    if (call === "RESET_TRAY") {
         resetTray();
     }
 
-    if (call == "TERMINATE") {
+    if (call === "TERMINATE") {
         storage.resetCredentials();
         resetTray();
         Python.end();
     }
 
-    if (call == "DOM") {
+    if (call === "DOM") {
         sendRender({ INIT_SETTINGS: storage.getSettings() });
         const storedCredentials = storage.getCredentials();
         if (storedCredentials) {
@@ -83,7 +85,7 @@ ipcMain.on("toMain", (event, args) => {
     }
 
     // Attempt to login by starting python script
-    if (call == "LOGIN") {
+    if (call === "LOGIN") {
         const credentials = values["LOGIN"];
         console.log("Logging in with:", credentials.user);
         if (Python instanceof python) {
@@ -93,34 +95,34 @@ ipcMain.on("toMain", (event, args) => {
         Python.start();
     }
 
-    if (call == "INIT_WIDGET_SETTINGS") {
+    if (call === "INIT_WIDGET_SETTINGS") {
         sendWidget({ SETTINGS: storage.getSettings() });
     }
 
-    if (call == "GET_SETTINGS") {
+    if (call === "GET_SETTINGS") {
         const settingsGet = storage.getSettings();
         sendRender({ OPEN_SETTINGS: settingsGet });
         sendWidget({ SETTINGS: settingsGet });
     }
 
-    if (call == "STORE_SETTINGS") {
+    if (call === "STORE_SETTINGS") {
         const settingsStore = values["STORE_SETTINGS"];
         console.log("STORING", settingsStore);
         storage.saveSettings(settingsStore);
         sendWidget({ SETTINGS: settingsStore });
     }
 
-    if (call == "OPEN_WIDGET") {
+    if (call === "OPEN_WIDGET") {
         showCloseWidgetMenu();
         createWidget(values["OPEN_WIDGET"]);
     }
 
-    if (call == "CLOSE_WIDGET") {
+    if (call === "CLOSE_WIDGET") {
         showOpenWidgetMenu();
         Widget.close();
     }
 
-    if (call == "SET_TRAY") {
+    if (call === "SET_TRAY") {
         if (values["SET_TRAY"]) {
             showCloseWidgetMenu();
         } else {
@@ -128,32 +130,32 @@ ipcMain.on("toMain", (event, args) => {
         }
     }
 
-    if (call == "GET_WIDGET") {
+    if (call === "GET_WIDGET") {
         sendWidget({ WIDGET_POSITION: storage.getWidgetPosition() });
     }
 
-    if (call == "STORE_WIDGET") {
+    if (call === "STORE_WIDGET") {
         storage.saveWidgetPosition(values["STORE_WIDGET"]);
     }
 
-    if (call == "GET_WIDGET_OPEN") {
+    if (call === "GET_WIDGET_OPEN") {
         console.log(storage.getWidgetOpen());
         sendRender({ WIDGET_OPEN: storage.getWidgetOpen() });
     }
 
-    if (call == "STORE_WIDGET_OPEN") {
+    if (call === "STORE_WIDGET_OPEN") {
         storage.saveWidgetOpen(values["STORE_WIDGET_OPEN"]);
     }
 
-    if (call == "STORE_READING") {
+    if (call === "STORE_READING") {
         storage.saveCurrentReading(values["STORE_READING"]);
     }
 
-    if (call == "GET_READING") {
+    if (call === "GET_READING") {
         sendWidget({ READING: storage.getCurrentReading() });
     }
 
-    if (call == "SET_IGNORE_MOUSE") {
+    if (call === "SET_IGNORE_MOUSE") {
         const args = values["SET_IGNORE_MOUSE"];
         const ignore = args[0];
         const options = args[1];
@@ -168,7 +170,7 @@ class Storage {
     getWinWindowBounds(): WindowBounds {
         const bounds: WindowBounds | null = this.store.get("win-bounds");
         if (!bounds) {
-            var defaultWindowBounds: WindowBounds = { width: 800, height: 500 };
+            const defaultWindowBounds: WindowBounds = { width: 800, height: 500 };
             this.store.set("win-bounds", defaultWindowBounds);
             return defaultWindowBounds;
         }
@@ -182,7 +184,7 @@ class Storage {
     getWidgetPosition() {
         const position = this.store.get("widget-position");
         if (!position) {
-            var defaultPosition = ["0px", "0px"];
+            const defaultPosition = ["0px", "0px"];
             this.store.set("widget-position", defaultPosition);
             return defaultPosition;
         }
@@ -213,9 +215,9 @@ class Storage {
     getCurrentReading() {
         const reading = this.store.get("current-reading");
         if (!reading) {
-            var defualtReading = DEFAULT_READING;
-            this.store.set("current-reading", defualtReading);
-            return defualtReading;
+            const defaultReading = DEFAULT_READING;
+            this.store.set("current-reading", defaultReading);
+            return defaultReading;
         }
         return reading;
     }
@@ -352,7 +354,7 @@ class python {
 
         console.log("TERMINATING PYTHON");
         this.send("TERMINATE");
-        var i = 0;
+        let i = 0;
         const interval = setInterval(() => {
             i += 1;
             if (!this.running) {
@@ -376,7 +378,7 @@ class python {
 
     restart() {
         this.Process.kill();
-        var i = 1;
+        let i = 1;
         const restart = setInterval(() => {
             if (!this.running) {
                 this.start();
@@ -531,7 +533,7 @@ app.on("window-all-closed", () => {
 app.on("before-quit", (e) => {
     if (Python instanceof python) {
         if (Python.running) {
-            e.preventDefault;
+            e.preventDefault();
             Python.end();
         }
     }
@@ -552,8 +554,8 @@ app.setAboutPanelOptions({
     credits: "Matthew Blam",
 });
 
-var tray: any;
-var trayMenu: any;
+let tray: any;
+let trayMenu: any;
 
 app.whenReady().then(() => {
     const iconPath = MAIN_WINDOW_VITE_DEV_SERVER_URL
@@ -609,9 +611,9 @@ function resetTray() {
 
 function updateTray(reading: Reading) {
     const unit = storage.getSettings().unit;
-    const glucose = unit == "mmol/l" ? reading.mmol_l : reading.value;
+    const glucose = unit === "mmol/l" ? reading.mmol_l : reading.value;
     tray.setTitle(
-        ` ${glucose == -1 ? "" : ` ${glucose}`} ${reading.trend_arrow}`
+        ` ${glucose === -1 ? "" : ` ${glucose}`} ${reading.trend_arrow}`
     );
 }
 
@@ -692,7 +694,6 @@ const template: Electron.MenuItemConstructorOptions[] = [
             {
                 label: "Learn More",
                 click: async () => {
-                    const { shell } = require("electron");
                     await shell.openExternal(
                         "https://github.com/MatthewBlam/Dexcom-Desktop-Application"
                     );

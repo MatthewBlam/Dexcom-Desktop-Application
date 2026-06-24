@@ -24,7 +24,7 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(
             <HistoryListItem
                 key={String(d.date_time)}
                 unit={unitSetting}
-                value={unitSetting == "mg/dl" ? d.value : d.mmol_l}
+                value={unitSetting === "mg/dl" ? d.value : d.mmol_l}
                 trendDescription={d.trend_description}
                 trendArrow={d.trend_arrow}
                 time={d.date_time[1]}
@@ -97,7 +97,7 @@ export const HistoryListItem = forwardRef<HTMLDivElement, HistoryListItemProps>(
 
         const range = () => {
             console.log(unit);
-            if (unit == "mg/dl") {
+            if (unit === "mg/dl") {
                 if (value >= highSetting) {
                     console.log("yellow");
                     return "text-dex-yellow";
@@ -134,31 +134,31 @@ export const HistoryListItem = forwardRef<HTMLDivElement, HistoryListItemProps>(
                     <div
                         id="number"
                         className="text-sm text-dex-text font-medium">
-                        {value == -1 ? "--" : value}
+                        {value === -1 ? "--" : value}
                     </div>
 
                     <div
                         id="trend_arrow"
                         className="text-sm text-dex-text font-medium">
-                        {value == -1 ? "" : trendArrow}
+                        {value === -1 ? "" : trendArrow}
                     </div>
                     <div
                         id="trend_description"
                         className="text-sm text-dex-text font-medium ml-[1px]">
-                        {value == -1 ? "" : trendDescription}
+                        {value === -1 ? "" : trendDescription}
                     </div>
                 </div>
                 <div className="flex gap-2 ml-auto">
                     <div
                         id="time"
                         className="text-sm text-dex-text font-medium">
-                        {value == -1 ? "" : time}
-                        {value == -1 ? "" : ","}
+                        {value === -1 ? "" : time}
+                        {value === -1 ? "" : ","}
                     </div>
                     <div
                         id="date"
                         className="text-sm text-dex-text font-medium">
-                        {value == -1 ? "Unavailable" : date}
+                        {value === -1 ? "Unavailable" : date}
                     </div>
                 </div>
             </div>

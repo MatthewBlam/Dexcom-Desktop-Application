@@ -70,8 +70,8 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
         const highMMOLL = mmol_l >= highSettingMMOLL ? true : false;
         const lowMMOLL = mmol_l <= lowSettingMMOLL ? true : false;
 
-        var circleColor = "#DCDCDC";
-        if (unitSetting == "mg/dl") {
+        let circleColor = "#DCDCDC";
+        if (unitSetting === "mg/dl") {
             if (high) {
                 circleColor = "#ffcc3d";
             }
@@ -86,8 +86,8 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
                 circleColor = "#f73d45";
             }
         }
-        var textColor = "text-[#373737]";
-        if (unitSetting == "mg/dl") {
+        let textColor = "text-[#373737]";
+        if (unitSetting === "mg/dl") {
             if (low) {
                 textColor = "text-[#ffffff]";
             }
@@ -267,8 +267,8 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
         const highMMOLL = mmol_l >= highSettingMMOLL ? true : false;
         const lowMMOLL = mmol_l <= lowSettingMMOLL ? true : false;
 
-        var circleColor = "#ffffff";
-        if (unitSetting == "mg/dl") {
+        let circleColor = "#ffffff";
+        if (unitSetting === "mg/dl") {
             if (high) {
                 circleColor = "#ffcc3d";
             }
@@ -283,8 +283,8 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                 circleColor = "#f73d45";
             }
         }
-        var textColor = "text-[#373737]";
-        if (unitSetting == "mg/dl") {
+        let textColor = "text-[#373737]";
+        if (unitSetting === "mg/dl") {
             if (low) {
                 textColor = "text-[#ffffff]";
             }
@@ -293,8 +293,8 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                 textColor = "text-[#ffffff]";
             }
         }
-        var unitTextColor = "text-[#757575]";
-        if (unitSetting == "mg/dl") {
+        let unitTextColor = "text-[#757575]";
+        if (unitSetting === "mg/dl") {
             if (high) {
                 unitTextColor = "text-[#373737]";
             }

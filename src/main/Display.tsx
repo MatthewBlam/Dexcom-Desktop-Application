@@ -36,18 +36,18 @@ export const Display = forwardRef<HTMLDivElement, DisplayProps>(
         const { sensorSetting } = useSettingsContext();
         const G7theme = sensorSetting === "G7" ? true : false;
 
-        var t = reading.trend_direction;
-        if (t == "None" || t == "NotComputable" || t == "RateOutOfRange") {
+        let t = reading.trend_direction;
+        if (t === "None" || t === "NotComputable" || t === "RateOutOfRange") {
             t = "Unavailable";
         }
-        var v;
-        if (reading.value == -1) {
+        let v;
+        if (reading.value === -1) {
             v = "--";
         } else {
             v = reading.value;
         }
-        var m;
-        if (reading.mmol_l == -1) {
+        let m;
+        if (reading.mmol_l === -1) {
             m = "--";
         } else {
             m = reading.mmol_l;

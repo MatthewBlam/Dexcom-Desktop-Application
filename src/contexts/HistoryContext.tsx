@@ -1,6 +1,12 @@
 import { createContext, ReactNode, useContext, useState } from "react";
+import { Reading } from "../shared/types";
 
-export const HistoryContext = createContext(null);
+interface HistoryContextValue {
+    historyItems: Reading[];
+    setHistoryItems: React.Dispatch<React.SetStateAction<Reading[]>>;
+}
+
+export const HistoryContext = createContext<HistoryContextValue | null>(null);
 
 export interface HistoryContextProviderProps {
     children: ReactNode;
@@ -9,7 +15,7 @@ export interface HistoryContextProviderProps {
 export default function HistoryContextProvider({
     children,
 }: HistoryContextProviderProps) {
-    const [historyItems, setHistoryItems] = useState([]);
+    const [historyItems, setHistoryItems] = useState<Reading[]>([]);
     return (
         <HistoryContext.Provider
             value={{

@@ -141,7 +141,7 @@ const App = () => {
     };
 
     const loginClick = () => {
-        if (userVal == "" || passwordVal == "") {
+        if (userVal === "" || passwordVal === "") {
             setErrorText("Please provide both email and password");
             setErrorActive(true);
             setCREDENTIALS(undefined);
@@ -276,7 +276,7 @@ const App = () => {
 
         sendMain({ DOM: null });
 
-        var session = sessionStorage.getItem("session");
+        const session = sessionStorage.getItem("session");
         if (session) {
             setCREDENTIALS(true);
             setLOADED(true);
@@ -288,15 +288,15 @@ const App = () => {
             const keys = Object.keys(values);
             const call = keys[0];
 
-            if (call == "LOG") {
+            if (call === "LOG") {
                 console.log(values["LOG"]);
             }
 
-            if (call == "PYTHON_ERROR") {
+            if (call === "PYTHON_ERROR") {
                 openPythonError();
             }
 
-            if (call == "AUTH_ERROR") {
+            if (call === "AUTH_ERROR") {
                 setLOADED(true);
                 const error = values["AUTH_ERROR"];
                 if (error) {
@@ -310,30 +310,30 @@ const App = () => {
                 openLoginPage();
             }
 
-            if (call == "CREDENTIALS") {
+            if (call === "CREDENTIALS") {
                 setLOADED(true);
                 setCREDENTIALS(true);
                 openDisplayPage();
                 sessionStorage.setItem("session", "true");
             }
 
-            if (call == "INIT_SETTINGS") {
+            if (call === "INIT_SETTINGS") {
                 setSettings(values["INIT_SETTINGS"]);
                 setIsSettingsLoaded(true);
             }
 
-            if (call == "OPEN_SETTINGS") {
+            if (call === "OPEN_SETTINGS") {
                 setSettings(values["OPEN_SETTINGS"]);
                 setDimmerOn(true);
                 setSettingsOpen(true);
             }
 
-            if (call == "KILLED_PYTHON") {
+            if (call === "KILLED_PYTHON") {
                 setDimmerFlashingOn(false);
                 openLoginPage();
             }
 
-            if (call == "WIDGET_OPEN") {
+            if (call === "WIDGET_OPEN") {
                 const open = values["WIDGET_OPEN"];
                 if (open && !widgetOpen) {
                     toggleWidget();
@@ -341,19 +341,19 @@ const App = () => {
                 sendMain({ SET_TRAY: open });
             }
 
-            if (call == "CLOSE_WIDGET") {
+            if (call === "CLOSE_WIDGET") {
                 setWidgetOpen(false);
             }
 
-            if (call == "TRAY_OPEN_WIDGET") {
+            if (call === "TRAY_OPEN_WIDGET") {
                 trayOpenWidget();
             }
 
-            if (call == "TRAY_CLOSE_WIDGET") {
+            if (call === "TRAY_CLOSE_WIDGET") {
                 trayCloseWidget();
             }
 
-            if (call == "READING") {
+            if (call === "READING") {
                 const newReading = values["READING"];
                 console.log("Received Reading:", newReading);
                 setCurrentReading(newReading);
