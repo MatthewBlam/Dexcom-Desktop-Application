@@ -18,7 +18,7 @@ import {
     Reading,
     Settings,
     Credentials,
-    WindowWindowBounds,
+    WindowBounds,
     DEFAULT_READING,
     DEFAULT_SETTINGS,
 } from "./shared/types";
@@ -460,7 +460,7 @@ const createWindow = () => {
     Win.show();
 
     Win.on("resized", () => {
-        const bounds = Win.getWindowBounds();
+        const bounds = Win.getBounds();
         storage.saveWinWindowBounds({ width: bounds.width, height: bounds.height });
     });
 };
