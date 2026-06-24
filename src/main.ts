@@ -14,6 +14,14 @@ import {
 const { spawn } = require("child_process");
 const Store = require("electron-store");
 import path from "path";
+import {
+    Reading,
+    Settings,
+    Credentials,
+    WindowWindowBounds,
+    DEFAULT_READING,
+    DEFAULT_SETTINGS,
+} from "./shared/types";
 
 // Globals
 var Python: python;
@@ -154,51 +162,20 @@ ipcMain.on("toMain", (event, args) => {
     }
 });
 
-interface Bounds {
-    width: number;
-    height: number;
-}
-
-interface Settings {
-    sensor: "G6" | "G7";
-    unit: "mg/dl" | "mmol/l";
-    high: number;
-    low: number;
-    highMMOLL: number;
-    lowMMOLL: number;
-}
-
-interface Credentials {
-    user: string;
-    password: string;
-    ous: boolean;
-}
-
-interface Reading {
-    id: string;
-    value: number;
-    mmol_l: number;
-    trend: number;
-    trend_direction: string;
-    trend_description: string;
-    trend_arrow: string;
-    date_time: Array<string>;
-}
-
 class Storage {
     store = new Store();
 
-    getWinBounds(): Bounds {
-        const bounds: Bounds | null = this.store.get("win-bounds");
+    getWinWindowBounds(): WindowBounds {
+        const bounds: WindowBounds | null = this.store.get("win-bounds");
         if (!bounds) {
-            var defaultBounds: Bounds = { width: 800, height: 500 };
-            this.store.set("win-bounds", defaultBounds);
-            return defaultBounds;
+            var defaultWindowBounds: WindowBounds = { width: 800, height: 500 };
+            this.store.set("win-bounds", defaultWindowBounds);
+            return defaultWindowBounds;
         }
         return bounds;
     }
 
-    saveWinBounds(bounds: Bounds) {
+    saveWinWindowBounds(bounds: WindowBounds) {
         this.store.set("win-bounds", bounds);
     }
 
@@ -236,16 +213,7 @@ class Storage {
     getCurrentReading() {
         const reading = this.store.get("current-reading");
         if (!reading) {
-            var defualtReading = {
-                id: "Unavailable",
-                value: -1,
-                mmol_l: -1,
-                trend: 0,
-                trend_direction: "Unavailable",
-                trend_description: "Unavailable",
-                trend_arrow: "Unavailable",
-                date_time: ["Unavailable", "Unavailable"],
-            };
+            var defualtReading = DEFAULT_READING;
             this.store.set("current-reading", defualtReading);
             return defualtReading;
         }
@@ -277,14 +245,7 @@ class Storage {
     getSettings(): Settings | undefined {
         const settings: Settings | undefined = this.store.get("settings");
         if (!settings) {
-            const defaultSettings: Settings = {
-                sensor: "G7",
-                unit: "mg/dl",
-                high: 200,
-                low: 70,
-                highMMOLL: 11.0,
-                lowMMOLL: 4.0,
-            };
+            const defaultSettings: Settings = DEFAULT_SETTINGS;
             this.store.set("settings", defaultSettings);
             return defaultSettings;
         }
@@ -463,12 +424,12 @@ powerMonitor.on("unlock-screen", () => {
 });
 
 const createWindow = () => {
-    const winBounds = storage.getWinBounds();
+    const winWindowBounds = storage.getWinWindowBounds();
     Win = new BrowserWindow({
         minWidth: 450,
         minHeight: 400,
-        width: winBounds.width,
-        height: winBounds.height,
+        width: winWindowBounds.width,
+        height: winWindowBounds.height,
         show: false,
         autoHideMenuBar: true,
         center: true,
@@ -499,8 +460,8 @@ const createWindow = () => {
     Win.show();
 
     Win.on("resized", () => {
-        const bounds = Win.getBounds();
-        storage.saveWinBounds({ width: bounds.width, height: bounds.height });
+        const bounds = Win.getWindowBounds();
+        storage.saveWinWindowBounds({ width: bounds.width, height: bounds.height });
     });
 };
 

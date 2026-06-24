@@ -13,26 +13,7 @@ import { Display } from "./Display";
 import { Login } from "./Login";
 import "inter-ui/inter.css";
 import clsx from "clsx";
-
-interface Settings {
-    sensor: "G6" | "G7";
-    unit: "mg/dl" | "mmol/l";
-    high: number;
-    low: number;
-    highMMOLL: number;
-    lowMMOLL: number;
-}
-
-interface Reading {
-    id: string;
-    value: number;
-    mmol_l: number;
-    trend: number;
-    trend_direction: string;
-    trend_description: string;
-    trend_arrow: string;
-    date_time: Array<string>;
-}
+import { Reading, Settings, DEFAULT_READING } from "../shared/types";
 
 const variants = {
     hidden: { opacity: 0, scale: 0, x: "-50%", y: "-50%" },
@@ -269,16 +250,7 @@ const App = () => {
         setConfirmOpen(false);
     }
 
-    const [currentReading, setCurrentReading] = useState<Reading>({
-        id: "Unavailable",
-        value: -1,
-        mmol_l: -1,
-        trend: 0,
-        trend_direction: "Unavailable",
-        trend_description: "Unavailable",
-        trend_arrow: "Unavailable",
-        date_time: ["Unavailable", "Unavailable"],
-    });
+    const [currentReading, setCurrentReading] = useState<Reading>(DEFAULT_READING);
     const { historyItems, setHistoryItems } = useHistoryContext();
 
     const [pythonError, setPythonError] = useState(false);

@@ -3,17 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { useSettingsContext } from "../contexts/SettingsContext";
 import { HTMLMotionProps, motion } from "framer-motion";
 import { useHistoryContext } from "../contexts/HistoryContext";
-
-interface Reading {
-    id: string;
-    value: number;
-    mmol_l: number;
-    trend: number;
-    trend_direction: string;
-    trend_description: string;
-    trend_arrow: string;
-    date_time: Array<string>;
-}
+import { Reading } from "../shared/types";
 
 export interface HistoryProps extends HTMLMotionProps<"div"> {
     open: boolean;

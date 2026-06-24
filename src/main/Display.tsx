@@ -9,27 +9,7 @@ import {
     SettingsIcon,
 } from "../components/Icons";
 import { History } from "../components/History";
-
-type Trend =
-    | "Unavailable"
-    | "DoubleUp"
-    | "SingleUp"
-    | "FortyFiveUp"
-    | "Flat"
-    | "FortyFiveDown"
-    | "SingleDown"
-    | "DoubleDown";
-
-interface Reading {
-    id: string;
-    value: number;
-    mmol_l: number;
-    trend: number;
-    trend_direction: string;
-    trend_description: string;
-    trend_arrow: string;
-    date_time: Array<string>;
-}
+import { Trend, Reading } from "../shared/types";
 
 export interface DisplayProps extends ComponentProps<"div"> {
     reading: Reading;

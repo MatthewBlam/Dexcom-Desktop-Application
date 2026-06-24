@@ -4,36 +4,7 @@ import "inter-ui/inter.css";
 import { useSettingsContext } from "../contexts/SettingsContext";
 import { DexcomG6, DexcomG7 } from "../components/Dexcom";
 import { motion } from "framer-motion";
-
-type Trend =
-    | "Unavailable"
-    | "DoubleUp"
-    | "SingleUp"
-    | "FortyFiveUp"
-    | "Flat"
-    | "FortyFiveDown"
-    | "SingleDown"
-    | "DoubleDown";
-
-interface Reading {
-    id: string;
-    value: number;
-    mmol_l: number;
-    trend: number;
-    trend_direction: string;
-    trend_description: string;
-    trend_arrow: string;
-    date_time: Array<string>;
-}
-
-interface Settings {
-    sensor: "G6" | "G7";
-    unit: "mg/dl" | "mmol/l";
-    high: number;
-    low: number;
-    highMMOLL: number;
-    lowMMOLL: number;
-}
+import { Trend, Reading, Settings, DEFAULT_READING } from "../shared/types";
 
 const Widget = () => {
     const sendMain = useCallback((message: object) => {
@@ -74,16 +45,7 @@ const Widget = () => {
 
     const containerRef = useRef<HTMLDivElement | null>(null);
 
-    const [reading, setReading] = useState<Reading>({
-        id: "Unavailable",
-        value: -1,
-        mmol_l: -1,
-        trend: 0,
-        trend_direction: "Unavailable",
-        trend_description: "Unavailable",
-        trend_arrow: "Unavailable",
-        date_time: ["Unavailable", "Unavailable"],
-    });
+    const [reading, setReading] = useState<Reading>(DEFAULT_READING);
 
     var t = reading.trend_direction;
     if (t == "None" || t == "NotComputable" || t == "RateOutOfRange") {

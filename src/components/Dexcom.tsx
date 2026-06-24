@@ -1,16 +1,7 @@
 import { ComponentProps, forwardRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { useSettingsContext } from "../contexts/SettingsContext";
-
-type Trend =
-    | "Unavailable"
-    | "DoubleUp"
-    | "SingleUp"
-    | "FortyFiveUp"
-    | "Flat"
-    | "FortyFiveDown"
-    | "SingleDown"
-    | "DoubleDown";
+import { Trend } from "../shared/types";
 
 export interface DexcomProps extends ComponentProps<"div"> {
     trend: Trend;
