@@ -2,6 +2,7 @@ import { ComponentProps, forwardRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { useSettingsContext } from "../contexts/SettingsContext";
 import { Trend } from "../shared/types";
+import { getReadingRange } from "../shared/reading-utils";
 
 export interface DexcomProps extends ComponentProps<"div"> {
     trend: Trend;
@@ -65,37 +66,12 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(
             lowSettingMMOLL,
         } = useSettingsContext();
 
-        const high = mg_dl >= highSetting ? true : false;
-        const low = mg_dl <= lowSetting ? true : false;
-        const highMMOLL = mmol_l >= highSettingMMOLL ? true : false;
-        const lowMMOLL = mmol_l <= lowSettingMMOLL ? true : false;
-
-        let circleColor = "#DCDCDC";
-        if (unitSetting === "mg/dl") {
-            if (high) {
-                circleColor = "#ffcc3d";
-            }
-            if (low) {
-                circleColor = "#f73d45";
-            }
-        } else {
-            if (highMMOLL) {
-                circleColor = "#ffcc3d";
-            }
-            if (lowMMOLL) {
-                circleColor = "#f73d45";
-            }
-        }
-        let textColor = "text-[#373737]";
-        if (unitSetting === "mg/dl") {
-            if (low) {
-                textColor = "text-[#ffffff]";
-            }
-        } else {
-            if (lowMMOLL) {
-                textColor = "text-[#ffffff]";
-            }
-        }
+        const range = getReadingRange(mg_dl, mmol_l, unitSetting, {
+            high: highSetting, low: lowSetting,
+            highMMOLL: highSettingMMOLL, lowMMOLL: lowSettingMMOLL,
+        });
+        const circleColor = range === "low" ? "#f73d45" : range === "high" ? "#ffcc3d" : "#DCDCDC";
+        const textColor = range === "low" ? "text-[#ffffff]" : "text-[#373737]";
 
         const variant = trendVariantsG6(trend);
         return (
@@ -262,53 +238,13 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
             lowSettingMMOLL,
         } = useSettingsContext();
 
-        const high = mg_dl >= highSetting ? true : false;
-        const low = mg_dl <= lowSetting ? true : false;
-        const highMMOLL = mmol_l >= highSettingMMOLL ? true : false;
-        const lowMMOLL = mmol_l <= lowSettingMMOLL ? true : false;
-
-        let circleColor = "#ffffff";
-        if (unitSetting === "mg/dl") {
-            if (high) {
-                circleColor = "#ffcc3d";
-            }
-            if (low) {
-                circleColor = "#f73d45";
-            }
-        } else {
-            if (highMMOLL) {
-                circleColor = "#ffcc3d";
-            }
-            if (lowMMOLL) {
-                circleColor = "#f73d45";
-            }
-        }
-        let textColor = "text-[#373737]";
-        if (unitSetting === "mg/dl") {
-            if (low) {
-                textColor = "text-[#ffffff]";
-            }
-        } else {
-            if (lowMMOLL) {
-                textColor = "text-[#ffffff]";
-            }
-        }
-        let unitTextColor = "text-[#757575]";
-        if (unitSetting === "mg/dl") {
-            if (high) {
-                unitTextColor = "text-[#373737]";
-            }
-            if (low) {
-                unitTextColor = "text-[#ffffff]";
-            }
-        } else {
-            if (highMMOLL) {
-                unitTextColor = "text-[#373737]";
-            }
-            if (lowMMOLL) {
-                unitTextColor = "text-[#ffffff]";
-            }
-        }
+        const range = getReadingRange(mg_dl, mmol_l, unitSetting, {
+            high: highSetting, low: lowSetting,
+            highMMOLL: highSettingMMOLL, lowMMOLL: lowSettingMMOLL,
+        });
+        const circleColor = range === "low" ? "#f73d45" : range === "high" ? "#ffcc3d" : "#ffffff";
+        const textColor = range === "low" ? "text-[#ffffff]" : "text-[#373737]";
+        const unitTextColor = range === "low" ? "text-[#ffffff]" : range === "high" ? "text-[#373737]" : "text-[#757575]";
 
         const variant = trendVariantsG7(trend);
         return (
@@ -377,7 +313,7 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(
                                 style={{
                                     fill: circleColor,
                                     filter:
-                                        high || low || highMMOLL || lowMMOLL
+                                        range !== "normal"
                                             ? ""
                                             : "url(#shadow)",
                                 }}

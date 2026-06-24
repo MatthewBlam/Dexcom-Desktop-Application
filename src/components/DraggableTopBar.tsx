@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
@@ -20,7 +20,8 @@ export const DraggableTopBar = ({
             )}
             {...props}>
             <motion.svg
-                animate={{ opacity: 1, y: [-100, 0] }}
+                initial={{ opacity: 0, y: -100 }}
+                animate={hideLogo ? { opacity: 0 } : { opacity: 1, y: 0 }}
                 transition={{
                     opacity: { duration: 0.05 },
                     y: {
@@ -35,7 +36,7 @@ export const DraggableTopBar = ({
                 viewBox="0 0 131.42797 19.478"
                 height="20%"
                 className={twMerge(
-                    "opacity-0 mt-[3px] draggabletopbar",
+                    "mt-[3px] draggabletopbar",
                     clsx({ hidden: hideLogo })
                 )}>
                 <path

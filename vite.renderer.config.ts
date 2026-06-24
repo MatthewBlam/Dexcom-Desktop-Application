@@ -1,6 +1,7 @@
 import type { ConfigEnv, UserConfig } from "vite";
 import { defineConfig } from "vite";
 import { pluginExposeRenderer } from "./vite.base.config";
+import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import copy from "rollup-plugin-copy";
 
@@ -41,7 +42,7 @@ export default defineConfig((env) => {
                 console.log("Packages built at:", options.outputPaths);
             },
         },
-        plugins: [pluginExposeRenderer(name)],
+        plugins: [pluginExposeRenderer(name), tailwindcss()],
         resolve: {
             preserveSymlinks: true,
         },

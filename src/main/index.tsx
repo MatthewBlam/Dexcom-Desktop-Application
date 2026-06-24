@@ -4,6 +4,8 @@ import "./main.css";
 import SettingsContextProvider from "../contexts/SettingsContext";
 import HistoryContextProvider from "../contexts/HistoryContext";
 
+document.getElementById("container")?.remove();
+
 const root = createRoot(document.body);
 root.render(
     <SettingsContextProvider>

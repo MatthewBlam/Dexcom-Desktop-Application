@@ -1,9 +1,10 @@
 import { ComponentProps, forwardRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { useSettingsContext } from "../contexts/SettingsContext";
-import { HTMLMotionProps, motion } from "framer-motion";
+import { HTMLMotionProps, motion } from "motion/react";
 import { useHistoryContext } from "../contexts/HistoryContext";
 import { Reading } from "../shared/types";
+import { getReadingRange } from "../shared/reading-utils";
 
 export interface HistoryProps extends HTMLMotionProps<"div"> {
     open: boolean;
@@ -44,22 +45,7 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(
                     className
                 )}
                 {...props}>
-                {
-                    historyElements[0]
-                    /*
-                !open
-                    ? historyElements[0]
-                    : [
-                          historyElements,
-                          historyElements,
-                          historyElements,
-                          historyElements,
-                          historyElements,
-                          historyElements,
-                      ]
-                          unused feature
-                          */
-                }
+                {historyElements[0]}
             </motion.div>
         );
     }
@@ -90,31 +76,17 @@ export const HistoryListItem = forwardRef<HTMLDivElement, HistoryListItemProps>(
         ref
     ) => {
         const { sensorSetting } = useSettingsContext();
-        const G7theme = sensorSetting === "G7" ? true : false;
+        const G7theme = sensorSetting === "G7";
 
         const { highSetting, lowSetting, highSettingMMOLL, lowSettingMMOLL } =
             useSettingsContext();
 
-        const range = () => {
-            console.log(unit);
-            if (unit === "mg/dl") {
-                if (value >= highSetting) {
-                    console.log("yellow");
-                    return "text-dex-yellow";
-                }
-                if (value <= lowSetting) {
-                    return "text-dex-red";
-                }
-            } else {
-                if (value >= highSettingMMOLL) {
-                    return "text-dex-yellow";
-                }
-                if (value <= lowSettingMMOLL) {
-                    return "text-dex-red";
-                }
-            }
-            return "text-dex-green";
-        };
+        const rangeResult = getReadingRange(
+            String(value), String(value),
+            unit as "mg/dl" | "mmol/l",
+            { high: highSetting, low: lowSetting, highMMOLL: highSettingMMOLL, lowMMOLL: lowSettingMMOLL },
+        );
+        const rangeColor = rangeResult === "high" ? "text-dex-yellow" : rangeResult === "low" ? "text-dex-red" : "text-dex-green";
 
         return (
             <div
@@ -127,7 +99,7 @@ export const HistoryListItem = forwardRef<HTMLDivElement, HistoryListItemProps>(
                 {...props}>
                 <div
                     id="icon"
-                    className={twMerge("text-sm font-medium", range())}>
+                    className={twMerge("text-sm font-medium", rangeColor)}>
                     •
                 </div>
                 <div className="flex gap-1">
