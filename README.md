@@ -11,7 +11,7 @@
     <br />
     <br />
     Download here: <a href="https://github.com/MatthewBlam/Dexcom-Desktop-Application/releases/tag/v1.0.0">v1.0.0</a>
-    <br /> (currently only supports apple silicon macs)
+    <br /> (outdated - for newest version build from source)
   </p>
 </div>
 
