@@ -44,9 +44,11 @@
         "clsx": "^2.1.1",
         "electron-squirrel-startup": "^1.0.1",
         "inter-ui": "^4.1.1",
+        "lucide-react": "^1.21.0",
         "motion": "^12.41.0",
         "react": "^19.2.7",
         "react-dom": "^19.2.7",
+        "recharts": "^3.9.0",
         "tailwind-merge": "^3.6.0",
         "ws": "^8.21.0"
     }

@@ -1,6 +1,5 @@
 import { ComponentProps, ChangeEventHandler, forwardRef } from "react";
 import { twMerge } from "tailwind-merge";
-import { useSettingsContext } from "../contexts/SettingsContext";
 
 export interface CheckboxProps extends ComponentProps<"div"> {
     label: string;
@@ -25,8 +24,6 @@ export const Checkbox = forwardRef<HTMLDivElement, CheckboxProps>(
         ref
     ) => {
         const tabIndex = tabbable ? 0 : -1;
-        const { sensorSetting } = useSettingsContext();
-        const G7theme = sensorSetting === "G7" ? true : false;
         return (
             <div
                 ref={ref}
@@ -47,9 +44,7 @@ export const Checkbox = forwardRef<HTMLDivElement, CheckboxProps>(
                         onChange={change}
                         disabled={disabled}
                         className={twMerge(
-                            G7theme
-                                ? "bg-dex-fg-light border-dex-fg-dark group-hover:border-dex-text-muted group-hover:border-opacity-70"
-                                : "bg-dex-fg-light border-dex-fg-dark group-hover:border-dex-text-muted group-hover:border-opacity-70",
+                            "bg-dex-fg-light border-dex-fg-dark group-hover:border-dex-text-muted group-hover:border-opacity-70",
                             "checkbox peer appearance-none cursor-pointer w-4 h-4 border-2 outline-none focus-visible:border-dex-green focus-visible:group-hover:border-dex-green rounded ring-0 checked:bg-dex-green checked:group-hover:border-dex-green checked:border-dex-green checked:disabled:group-hover:border-dex-green disabled:group-hover:border-dex-fg-dark disabled:cursor-not-allowed"
                         )}></input>
                     <span className="absolute cursor-pointer pointer-events-none text-dex-bg opacity-0 peer-checked:opacity-100 peer-disabled:cursor-not-allowed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">

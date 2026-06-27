@@ -1,4 +1,4 @@
-import type { Credentials, Reading, Settings } from "./types";
+import type { ConnectionStatus, Credentials, Reading, Settings } from "./types";
 
 // Request-response channels (ipcRenderer.invoke ↔ ipcMain.handle)
 export const IpcChannels = {
@@ -27,6 +27,15 @@ export const IpcChannels = {
     READING_GET_CURRENT: "reading:get-current",
     READING_SAVE: "reading:save",
 
+    // History
+    HISTORY_GET: "history:get",
+    HISTORY_GET_SPLIT: "history:get-split",
+    HISTORY_SAVE_SPLIT: "history:save-split",
+    HISTORY_GET_TIME_RANGE: "history:get-time-range",
+    HISTORY_SAVE_TIME_RANGE: "history:save-time-range",
+    HISTORY_GET_GRAPH_HEIGHT: "history:get-graph-height",
+    HISTORY_SAVE_GRAPH_HEIGHT: "history:save-graph-height",
+
     // Tray
     TRAY_RESET: "tray:reset",
     TRAY_SET_WIDGET_STATE: "tray:set-widget-state",
@@ -44,6 +53,8 @@ export const PushChannels = {
     TRAY_CLOSE_WIDGET: "push:tray-close-widget",
     LOG: "push:log",
     SETTINGS: "push:settings",
+    CONNECTION_STATUS: "push:connection-status",
+    HISTORY_BACKFILL: "push:history-backfill",
 } as const;
 
 // Type maps for invoke channels
@@ -65,6 +76,13 @@ export interface InvokeMap {
     [IpcChannels.READING_SAVE]: { args: Reading; result: void };
     [IpcChannels.TRAY_RESET]: { args: void; result: void };
     [IpcChannels.TRAY_SET_WIDGET_STATE]: { args: boolean; result: void };
+    [IpcChannels.HISTORY_GET]: { args: number; result: Reading[] };
+    [IpcChannels.HISTORY_GET_SPLIT]: { args: void; result: number };
+    [IpcChannels.HISTORY_SAVE_SPLIT]: { args: number; result: void };
+    [IpcChannels.HISTORY_GET_TIME_RANGE]: { args: void; result: number };
+    [IpcChannels.HISTORY_SAVE_TIME_RANGE]: { args: number; result: void };
+    [IpcChannels.HISTORY_GET_GRAPH_HEIGHT]: { args: void; result: number };
+    [IpcChannels.HISTORY_SAVE_GRAPH_HEIGHT]: { args: number; result: void };
 }
 
 // Type maps for push channels
@@ -79,4 +97,6 @@ export interface PushMap {
     [PushChannels.TRAY_CLOSE_WIDGET]: void;
     [PushChannels.LOG]: any[];
     [PushChannels.SETTINGS]: Settings;
+    [PushChannels.CONNECTION_STATUS]: ConnectionStatus;
+    [PushChannels.HISTORY_BACKFILL]: Reading[];
 }

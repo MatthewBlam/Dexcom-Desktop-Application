@@ -27,6 +27,13 @@ contextBridge.exposeInMainWorld("api", {
     saveReading: (reading: any) => ipcRenderer.invoke(IpcChannels.READING_SAVE, reading),
     resetTray: () => ipcRenderer.invoke(IpcChannels.TRAY_RESET),
     setTrayWidgetState: (open: boolean) => ipcRenderer.invoke(IpcChannels.TRAY_SET_WIDGET_STATE, open),
+    getHistory: (minutes: number) => ipcRenderer.invoke(IpcChannels.HISTORY_GET, minutes),
+    getHistorySplit: () => ipcRenderer.invoke(IpcChannels.HISTORY_GET_SPLIT),
+    saveHistorySplit: (percent: number) => ipcRenderer.invoke(IpcChannels.HISTORY_SAVE_SPLIT, percent),
+    getHistoryTimeRange: () => ipcRenderer.invoke(IpcChannels.HISTORY_GET_TIME_RANGE),
+    saveHistoryTimeRange: (minutes: number) => ipcRenderer.invoke(IpcChannels.HISTORY_SAVE_TIME_RANGE, minutes),
+    getHistoryGraphHeight: () => ipcRenderer.invoke(IpcChannels.HISTORY_GET_GRAPH_HEIGHT),
+    saveHistoryGraphHeight: (height: number) => ipcRenderer.invoke(IpcChannels.HISTORY_SAVE_GRAPH_HEIGHT, height),
 
     // Push listeners (return unsubscribe)
     onReading: (cb: any) => onPush(PushChannels.READING, cb),
@@ -39,4 +46,6 @@ contextBridge.exposeInMainWorld("api", {
     onTrayCloseWidget: (cb: any) => onPush(PushChannels.TRAY_CLOSE_WIDGET, cb),
     onLog: (cb: any) => onPush(PushChannels.LOG, cb),
     onSettings: (cb: any) => onPush(PushChannels.SETTINGS, cb),
+    onConnectionStatus: (cb: any) => onPush(PushChannels.CONNECTION_STATUS, cb),
+    onHistoryBackfill: (cb: any) => onPush(PushChannels.HISTORY_BACKFILL, cb),
 });

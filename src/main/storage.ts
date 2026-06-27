@@ -83,8 +83,34 @@ export class Storage {
     this.set("current-reading", reading);
   }
 
+  getHistorySplit(): number {
+    return this.get("history-split", 75);
+  }
+
+  saveHistorySplit(percent: number): void {
+    this.set("history-split", percent);
+  }
+
+  getHistoryTimeRange(): number {
+    return this.get("history-time-range", 180);
+  }
+
+  saveHistoryTimeRange(minutes: number): void {
+    this.set("history-time-range", minutes);
+  }
+
+  getHistoryGraphHeight(): number {
+    return this.get("history-graph-height", 300);
+  }
+
+  saveHistoryGraphHeight(height: number): void {
+    this.set("history-graph-height", height);
+  }
+
   getSettings(): Settings {
-    return this.get("settings", DEFAULT_SETTINGS);
+    const stored = this.data["settings"];
+    if (!stored) return this.get("settings", DEFAULT_SETTINGS);
+    return { ...DEFAULT_SETTINGS, ...stored };
   }
 
   saveSettings(settings: Settings): void {

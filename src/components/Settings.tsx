@@ -2,550 +2,490 @@ import { ComponentProps, forwardRef, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { HTMLMotionProps, motion } from "motion/react";
 import { Button } from "./Button";
+import { Slider } from "./Slider";
+import { Toggle } from "./Toggle";
+import { RotateCcw, ChevronLeft, ChevronRight, Info } from "lucide-react";
+import { DEFAULT_SETTINGS } from "../shared/types";
 
 export interface SettingsProps extends HTMLMotionProps<"div"> {
-    active: boolean;
-    closeSettings: Function;
-    storeSettings: Function;
-    settingsTabbable: boolean;
-    confirmActive: boolean;
-    openConfirm: Function;
-    closeConfirm: Function;
-    logoutClick: Function;
-    confirmTabbable: boolean;
+  active: boolean;
+  closeSettings: Function;
+  storeSettings: Function;
+  settingsTabbable: boolean;
+  confirmActive: boolean;
+  openConfirm: Function;
+  closeConfirm: Function;
+  logoutClick: Function;
+  confirmTabbable: boolean;
 
-    sensorState: string | null;
-    unitState: string | null;
-    highState: number | null;
-    lowState: number | null;
-    highMMOLLState: number | null;
-    lowMMOLLState: number | null;
+  sensorState: string | null;
+  unitState: string | null;
+  highState: number | null;
+  lowState: number | null;
+  highMMOLLState: number | null;
+  lowMMOLLState: number | null;
+  criticalLowState: number | null;
+  criticalLowMMOLLState: number | null;
+  launchAtLoginState: boolean;
+  widgetOpacityState: number;
+  widgetShowIndicatorState: boolean;
+  widgetShowSparklineState: boolean;
 
-    setSensorState: Function;
-    setUnitState: Function;
-    setHighState: Function;
-    setLowState: Function;
-    setHighMMOLLState: Function;
-    setLowMMOLLState: Function;
+  setSensorState: Function;
+  setUnitState: Function;
+  setHighState: Function;
+  setLowState: Function;
+  setHighMMOLLState: Function;
+  setLowMMOLLState: Function;
+  setCriticalLowState: Function;
+  setCriticalLowMMOLLState: Function;
+  setLaunchAtLoginState: Function;
+  setWidgetOpacityState: Function;
+  setWidgetShowIndicatorState: Function;
+  setWidgetShowSparklineState: Function;
 }
 
 const variants = {
-    hidden: { opacity: 0, scale: 0, x: "-50%", y: "-50%" },
-    visible: { opacity: 1, scale: 1, x: "-50%", y: "-50%" },
+  hidden: { opacity: 0, x: "-50%", y: "-50%" },
+  visible: { opacity: 1, x: "-50%", y: "-50%" },
 };
 
 export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
-    (
-        {
-            children,
-            className,
-            active,
-            closeSettings,
-            storeSettings,
-            settingsTabbable,
-            confirmActive,
-            openConfirm,
-            closeConfirm,
-            logoutClick,
-            confirmTabbable,
+  (
+    {
+      children,
+      className,
+      active,
+      closeSettings,
+      storeSettings,
+      settingsTabbable,
+      confirmActive,
+      openConfirm,
+      closeConfirm,
+      logoutClick,
+      confirmTabbable,
 
-            sensorState,
-            unitState,
-            highState,
-            lowState,
-            highMMOLLState,
-            lowMMOLLState,
+      sensorState,
+      unitState,
+      highState,
+      lowState,
+      highMMOLLState,
+      lowMMOLLState,
+      criticalLowState,
+      criticalLowMMOLLState,
+      launchAtLoginState,
+      widgetOpacityState,
+      widgetShowIndicatorState,
+      widgetShowSparklineState,
 
-            setSensorState,
-            setUnitState,
-            setHighState,
-            setLowState,
-            setHighMMOLLState,
-            setLowMMOLLState,
-            ...props
-        },
-        ref
-    ) => {
-        const sensorElement = useRef(null);
-        const unitElement = useRef(null);
-        const highElement = useRef(null);
-        const lowElement = useRef(null);
-        const highElementMMOLL = useRef(null);
-        const lowElementMMOLL = useRef(null);
-
-        function saveSettings() {
-            const settings = {
-                sensor: sensorState,
-                unit: unitState,
-                high: highState,
-                low: lowState,
-                highMMOLL: highMMOLLState,
-                lowMMOLL: lowMMOLLState,
-            };
-            console.log("SAVING SETTINGS", settings);
-            storeSettings(settings);
-            closeSettings();
-        }
-
-        return (
-            <>
-                <motion.div
-                    variants={variants}
-                    initial="hidden"
-                    animate={active ? "visible" : "hidden"}
-                    transition={{
-                        duration: 0.05,
-                        opacity: {
-                            duration: 0.2,
-                        },
-                    }}
-                    ref={ref}
-                    className={twMerge(
-                        "bg-dex-bg z-20 drop-shadow-2xl rounded-xl size-fit absolute left-1/2 top-1/2 [@media(max-height:430px)]:top-[53.5%] transition-top duration-1000",
-                        className
-                    )}
-                    {...props}>
-                    <div className="w-full h-full p-6">
-                        <div className="w-full h-full flex flex-col gap-1.5 justify-start items-center">
-                            <div className="w-full flex flex-row content-start">
-                                <span className="text-dex-text text-xl select-none font-semibold ml-0.5">
-                                    Settings
-                                </span>
-                                <button
-                                    tabIndex={settingsTabbable ? 12 : -1}
-                                    onClick={() => {
-                                        closeSettings();
-                                    }}
-                                    className="cursor-pointer appearance-none focus-visible:outline-dex-green relative inline-flex ml-auto items-center justify-center size-6 rounded transition-none bg-dex-bg">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth="2.15"
-                                        stroke="currentColor"
-                                        className="size-5 absolute text-dex-text-muted hover:text-dex-text transition-all duration-[0.03s]">
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M6 18 18 6M6 6l12 12"
-                                        />
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div className="w-full h-full pb-4 pt-2.5 px-0.5 flex flex-row gap-8 mb-6">
-                                <div className="w-full flex flex-col content-start gap-8">
-                                    <div className="low">
-                                        <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">
-                                            Low
-                                        </div>
-                                        {unitState === "mg/dl" ? (
-                                            <ValueBox
-                                                valueBoxHandler={setLowState}
-                                                comparison={highState}
-                                                tabbable={settingsTabbable}
-                                                index={[1, 2]}
-                                                ref={lowElement}
-                                                value={lowState}
-                                                min={60}
-                                                max={150}></ValueBox>
-                                        ) : (
-                                            <ValueBoxMMOLL
-                                                valueBoxHandler={
-                                                    setLowMMOLLState
-                                                }
-                                                comparison={highMMOLLState}
-                                                tabbable={settingsTabbable}
-                                                index={[1, 2]}
-                                                ref={lowElementMMOLL}
-                                                value={lowMMOLLState}
-                                                min={3.5}
-                                                max={8.5}></ValueBoxMMOLL>
-                                        )}
-                                    </div>
-                                    <div className="version">
-                                        <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">
-                                            Sensor
-                                        </div>
-                                        <SegmentedButton
-                                            changeHandler={(btn: number) => {
-                                                if (btn === 1) {
-                                                    setSensorState("G7");
-                                                } else {
-                                                    setSensorState("G6");
-                                                }
-                                            }}
-                                            tabbable={settingsTabbable}
-                                            index={[5, 6]}
-                                            ref={sensorElement}
-                                            buttonOne="G7"
-                                            buttonTwo="G6"
-                                            activeButton={
-                                                sensorState === "G7" ? 1 : 2
-                                            }></SegmentedButton>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex flex-col content-start gap-8">
-                                    <div className="high">
-                                        <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">
-                                            High
-                                        </div>
-                                        {unitState === "mg/dl" ? (
-                                            <ValueBox
-                                                valueBoxHandler={setHighState}
-                                                comparison={lowState}
-                                                tabbable={settingsTabbable}
-                                                index={[3, 4]}
-                                                ref={highElement}
-                                                value={highState}
-                                                min={150}
-                                                max={400}></ValueBox>
-                                        ) : (
-                                            <ValueBoxMMOLL
-                                                valueBoxHandler={
-                                                    setHighMMOLLState
-                                                }
-                                                comparison={lowMMOLLState}
-                                                tabbable={settingsTabbable}
-                                                index={[3, 4]}
-                                                ref={highElementMMOLL}
-                                                value={highMMOLLState}
-                                                min={8.5}
-                                                max={22.0}></ValueBoxMMOLL>
-                                        )}
-                                    </div>
-                                    <div className="unit">
-                                        <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">
-                                            Unit
-                                        </div>
-                                        <SegmentedButton
-                                            changeHandler={(btn: number) => {
-                                                if (btn === 1) {
-                                                    setUnitState("mg/dl");
-                                                } else {
-                                                    setUnitState("mmol/l");
-                                                }
-                                            }}
-                                            tabbable={settingsTabbable}
-                                            index={[7, 8]}
-                                            ref={unitElement}
-                                            buttonOne="mg/dl"
-                                            buttonTwo="mmol/l"
-                                            activeButton={
-                                                unitState === "mg/dl" ? 1 : 2
-                                            }></SegmentedButton>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="w-full flex flex-row mt-auto justify-end gap-1">
-                                <Button
-                                    className="mr-auto focus-visible:outline-dex-green outline-transparent text-sm pl-[14.15px] pr-[14.25px]"
-                                    text="Log Out"
-                                    tabbable={settingsTabbable}
-                                    tabIndex={settingsTabbable ? 11 : -1}
-                                    click={() => {
-                                        closeSettings();
-                                        openConfirm();
-                                    }}></Button>
-                                <Button
-                                    className="text-sm py-2 pl-3.5 pr-[14.25px] bg-dex-bg hover:bg-dex-bg text-dex-text-muted hover:text-dex-text "
-                                    text="Cancel"
-                                    tabbable={settingsTabbable}
-                                    tabIndex={settingsTabbable ? 10 : -1}
-                                    click={() => {
-                                        closeSettings();
-                                    }}></Button>
-                                <Button
-                                    className="focus-visible:outline-dex-green outline-transparent text-sm py-2 pl-3.5 pr-[14.25px]"
-                                    text="Save"
-                                    tabbable={settingsTabbable}
-                                    tabIndex={settingsTabbable ? 9 : -1}
-                                    click={() => {
-                                        saveSettings();
-                                    }}></Button>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-
-                <motion.div
-                    id="confirmation"
-                    variants={variants}
-                    initial="hidden"
-                    animate={confirmActive ? "visible" : "hidden"}
-                    transition={{
-                        duration: 0.05,
-                        opacity: {
-                            duration: 0.2,
-                        },
-                    }}
-                    className="w-max absolute rounded-lg bg-dex-bg drop-shadow-2xl left-1/2 top-1/2 p-6 z-30">
-                    <div className="text-nowrap mb-1 text-lg font-semibold text-dex-text">
-                        Confirm
-                    </div>
-                    <div className="mb-6 text-sm font-normal text-dex-text-muted">
-                        Are you sure you want to log out?
-                    </div>
-                    <div className="flex justify-end gap-2">
-                        <Button
-                            className="text-sm py-2 pl-3.5 pr-[14.25px] bg-dex-bg hover:bg-dex-bg text-dex-text-muted hover:text-dex-text "
-                            text="No"
-                            tabbable={confirmTabbable}
-                            click={() => {
-                                closeConfirm();
-                            }}></Button>
-                        <Button
-                            className="focus-visible:outline-dex-green outline-transparent text-sm py-2 pl-3.5 pr-[14.25px]"
-                            text="Yes"
-                            tabbable={confirmTabbable}
-                            click={() => {
-                                logoutClick();
-                                closeConfirm(true);
-                            }}></Button>
-                    </div>
-                </motion.div>
-            </>
-        );
+      setSensorState,
+      setUnitState,
+      setHighState,
+      setLowState,
+      setHighMMOLLState,
+      setLowMMOLLState,
+      setCriticalLowState,
+      setCriticalLowMMOLLState,
+      setLaunchAtLoginState,
+      setWidgetOpacityState,
+      setWidgetShowIndicatorState,
+      setWidgetShowSparklineState,
+      ...props
+    },
+    ref,
+  ) => {
+    const sensorElement = useRef(null);
+    const unitElement = useRef(null);
+    const highElement = useRef(null);
+    const lowElement = useRef(null);
+    const highElementMMOLL = useRef(null);
+    const lowElementMMOLL = useRef(null);
+    function resetToDefaults() {
+      setSensorState(DEFAULT_SETTINGS.sensor);
+      setUnitState(DEFAULT_SETTINGS.unit);
+      setHighState(DEFAULT_SETTINGS.high);
+      setLowState(DEFAULT_SETTINGS.low);
+      setHighMMOLLState(DEFAULT_SETTINGS.highMMOLL);
+      setLowMMOLLState(DEFAULT_SETTINGS.lowMMOLL);
+      setCriticalLowState(DEFAULT_SETTINGS.criticalLow);
+      setCriticalLowMMOLLState(DEFAULT_SETTINGS.criticalLowMMOLL);
+      setLaunchAtLoginState(DEFAULT_SETTINGS.launchAtLogin);
+      setWidgetOpacityState(DEFAULT_SETTINGS.widgetOpacity);
+      setWidgetShowIndicatorState(DEFAULT_SETTINGS.widgetShowIndicator);
+      setWidgetShowSparklineState(DEFAULT_SETTINGS.widgetShowSparkline);
     }
+
+    function saveSettings() {
+      const settings = {
+        sensor: sensorState,
+        unit: unitState,
+        high: highState,
+        low: lowState,
+        highMMOLL: highMMOLLState,
+        lowMMOLL: lowMMOLLState,
+        criticalLow: criticalLowState,
+        criticalLowMMOLL: criticalLowMMOLLState,
+        launchAtLogin: launchAtLoginState,
+        widgetOpacity: widgetOpacityState,
+        widgetShowIndicator: widgetShowIndicatorState,
+        widgetShowSparkline: widgetShowSparklineState,
+      };
+      console.log("SAVING SETTINGS", settings);
+      storeSettings(settings);
+      closeSettings();
+    }
+
+    return (
+      <>
+        <motion.div
+          variants={variants}
+          initial="hidden"
+          animate={active ? "visible" : "hidden"}
+          transition={{ duration: 0.2 }}
+          ref={ref}
+          className={twMerge(
+            "bg-dex-bg z-20 drop-shadow-2xl rounded-xl size-fit min-w-[430px] absolute left-1/2 top-1/2 [@media(max-height:430px)]:top-[53.5%] transition-top duration-1000",
+            !active && "pointer-events-none",
+            className,
+          )}
+          {...props}>
+          <div className="w-full h-full p-6">
+            <div className="w-full h-full flex flex-col gap-1.5 justify-start items-center">
+              <div className="w-full flex flex-row content-start">
+                <span className="text-dex-text text-xl select-none font-semibold ml-0.5">Settings</span>
+                <button
+                  tabIndex={settingsTabbable ? 12 : -1}
+                  onClick={resetToDefaults}
+                  className="group relative cursor-pointer appearance-none focus-visible:outline-dex-green ml-auto text-dex-text-muted hover:text-dex-text transition-all duration-[0.03s]">
+                  <RotateCcw className="size-4" strokeWidth={2.35} />
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 px-2 py-1 text-[10px] font-medium text-dex-bg bg-dex-text rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap">
+                    reset to default settings
+                  </div>
+                </button>
+              </div>
+
+              <div className="w-full h-full pb-4 pt-2.5 px-0.5 flex flex-row gap-8 mb-6">
+                <div className="w-full flex flex-col content-start gap-8">
+                  <div className="low">
+                    <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Low</div>
+                    {unitState === "mg/dl" ? (
+                      <ValueBox valueBoxHandler={setLowState} upperBound={highState} tabbable={settingsTabbable} index={[1, 2]} ref={lowElement} value={lowState} min={60} max={150}></ValueBox>
+                    ) : (
+                      <ValueBoxMMOLL
+                        valueBoxHandler={setLowMMOLLState}
+                        upperBound={highMMOLLState}
+                        tabbable={settingsTabbable}
+                        index={[1, 2]}
+                        ref={lowElementMMOLL}
+                        value={lowMMOLLState}
+                        min={3.5}
+                        max={8.5}></ValueBoxMMOLL>
+                    )}
+                  </div>
+                  <div className="version">
+                    <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Theme</div>
+                    <SegmentedButton
+                      changeHandler={(btn: number) => {
+                        if (btn === 1) {
+                          setSensorState("G7");
+                        } else {
+                          setSensorState("G6");
+                        }
+                      }}
+                      tabbable={settingsTabbable}
+                      index={[5, 6]}
+                      ref={sensorElement}
+                      buttonOne="G7"
+                      buttonTwo="G6"
+                      activeButton={sensorState === "G7" ? 1 : 2}></SegmentedButton>
+                  </div>
+                  <div className="widget-indicator">
+                    <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Widget Indicator</div>
+                    <Toggle checked={widgetShowIndicatorState} onChange={(v) => setWidgetShowIndicatorState(v)} tabIndex={settingsTabbable ? 21 : -1} />
+                  </div>
+                  <div className="widget-opacity">
+                    <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Widget Opacity</div>
+                    <Slider
+                      min={0.3}
+                      max={1.0}
+                      step={0.05}
+                      value={widgetOpacityState}
+                      onChange={(v) => setWidgetOpacityState(v)}
+                      formatLabel={(v) => `${Math.round(v * 100)}%`}
+                      tabIndex={settingsTabbable ? 20 : -1}
+                    />
+                  </div>
+                </div>
+
+                <div className="w-full flex flex-col content-start gap-8">
+                  <div className="high">
+                    <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">High</div>
+                    {unitState === "mg/dl" ? (
+                      <ValueBox valueBoxHandler={setHighState} lowerBound={lowState} tabbable={settingsTabbable} index={[3, 4]} ref={highElement} value={highState} min={150} max={400}></ValueBox>
+                    ) : (
+                      <ValueBoxMMOLL
+                        valueBoxHandler={setHighMMOLLState}
+                        lowerBound={lowMMOLLState}
+                        tabbable={settingsTabbable}
+                        index={[3, 4]}
+                        ref={highElementMMOLL}
+                        value={highMMOLLState}
+                        min={8.5}
+                        max={22.0}></ValueBoxMMOLL>
+                    )}
+                  </div>
+                  <div className="unit">
+                    <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Unit</div>
+                    <SegmentedButton
+                      changeHandler={(btn: number) => {
+                        if (btn === 1) {
+                          setUnitState("mg/dl");
+                        } else {
+                          setUnitState("mmol/l");
+                        }
+                      }}
+                      tabbable={settingsTabbable}
+                      index={[7, 8]}
+                      ref={unitElement}
+                      buttonOne="mg/dl"
+                      buttonTwo="mmol/l"
+                      activeButton={unitState === "mg/dl" ? 1 : 2}></SegmentedButton>
+                  </div>
+                  <div className="widget-sparkline">
+                    <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Widget Sparkline</div>
+                    <Toggle checked={widgetShowSparklineState} onChange={(v) => setWidgetShowSparklineState(v)} tabIndex={settingsTabbable ? 22 : -1} />
+                  </div>
+                  <div className="launch-at-login">
+                    <div className="flex items-center gap-1.5 mb-1.5 ml-0.5">
+                      <div className="text-dex-text text-sm select-none font-medium">Launch at Login</div>
+                      <div className="group relative flex items-center">
+                        <Info className="size-3 text-dex-text-light" strokeWidth={2.5} />
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 px-2 py-1 text-[10px] font-medium text-dex-bg bg-dex-text rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap">
+                          automatically open the app when you log in to your computer
+                        </div>
+                      </div>
+                    </div>
+                    <Toggle checked={launchAtLoginState} onChange={(v) => setLaunchAtLoginState(v)} tabIndex={settingsTabbable ? 16 : -1} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-full flex flex-row mt-auto justify-end gap-1">
+                <Button
+                  className="mr-auto focus-visible:outline-dex-green outline-transparent text-sm pl-[14.15px] pr-[14.25px]"
+                  text="Log Out"
+                  tabbable={settingsTabbable}
+                  tabIndex={settingsTabbable ? 11 : -1}
+                  click={() => {
+                    closeSettings();
+                    openConfirm();
+                  }}></Button>
+                <Button
+                  className="text-sm py-2 pl-3.5 pr-[14.25px] bg-dex-bg hover:bg-dex-bg text-dex-text-muted hover:text-dex-text "
+                  text="Cancel"
+                  tabbable={settingsTabbable}
+                  tabIndex={settingsTabbable ? 10 : -1}
+                  click={() => {
+                    closeSettings();
+                  }}></Button>
+                <Button
+                  className="focus-visible:outline-dex-green outline-transparent text-sm py-2 pl-3.5 pr-[14.25px]"
+                  text="Save"
+                  tabbable={settingsTabbable}
+                  tabIndex={settingsTabbable ? 9 : -1}
+                  click={() => {
+                    saveSettings();
+                  }}></Button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          id="confirmation"
+          variants={variants}
+          initial="hidden"
+          animate={confirmActive ? "visible" : "hidden"}
+          transition={{ duration: 0.2 }}
+          className={`w-max absolute rounded-lg bg-dex-bg drop-shadow-2xl left-1/2 top-1/2 p-6 z-30 ${confirmActive ? "" : "pointer-events-none"}`}>
+          <div className="text-nowrap mb-1 text-lg font-semibold text-dex-text">Confirm</div>
+          <div className="mb-6 text-sm font-normal text-dex-text-muted">Are you sure you want to log out?</div>
+          <div className="flex justify-end gap-2">
+            <Button
+              className="text-sm py-2 pl-3.5 pr-[14.25px] bg-dex-bg hover:bg-dex-bg text-dex-text-muted hover:text-dex-text "
+              text="No"
+              tabbable={confirmTabbable}
+              click={() => {
+                closeConfirm();
+              }}></Button>
+            <Button
+              className="focus-visible:outline-dex-green outline-transparent text-sm py-2 pl-3.5 pr-[14.25px]"
+              text="Yes"
+              tabbable={confirmTabbable}
+              click={() => {
+                logoutClick();
+                closeConfirm(true);
+              }}></Button>
+          </div>
+        </motion.div>
+      </>
+    );
+  },
 );
 
 interface SegmentedButtonProps extends ComponentProps<"div"> {
-    buttonOne: string;
-    buttonTwo: string;
-    activeButton: 1 | 2;
-    tabbable: boolean;
-    index: number[];
-    changeHandler: Function;
+  buttonOne: string;
+  buttonTwo: string;
+  activeButton: 1 | 2;
+  tabbable: boolean;
+  index: number[];
+  changeHandler: Function;
 }
 
-const SegmentedButton = forwardRef<HTMLDivElement, SegmentedButtonProps>(
-    (
-        {
-            children,
-            className,
-            buttonOne,
-            buttonTwo,
-            activeButton,
-            tabbable,
-            index,
-            changeHandler,
-            ...props
-        },
-        ref
-    ) => {
-        return (
-            <div
-                ref={ref}
-                className={twMerge(
-                    "w-fit flex items-center justify-center p-1 gap-1 rounded-lg bg-dex-fg-light text-dex-text-light",
-                    className
-                )}
-                {...props}>
-                <button
-                    tabIndex={tabbable ? index[0] : -1}
-                    onClick={(e) => {
-                        changeHandler(1);
-                    }}
-                    data-state={activeButton === 1 ? "active" : ""}
-                    className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
-                    {buttonOne}
-                </button>
-                <button
-                    tabIndex={tabbable ? index[1] : -1}
-                    onClick={(e) => {
-                        changeHandler(2);
-                    }}
-                    data-state={activeButton === 2 ? "active" : ""}
-                    className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
-                    {buttonTwo}
-                </button>
-            </div>
-        );
-    }
-);
+const SegmentedButton = forwardRef<HTMLDivElement, SegmentedButtonProps>(({ children, className, buttonOne, buttonTwo, activeButton, tabbable, index, changeHandler, ...props }, ref) => {
+  return (
+    <div ref={ref} className={twMerge("w-fit flex items-center justify-center p-1 gap-1 rounded-lg bg-dex-fg-light text-dex-text-light", className)} {...props}>
+      <button
+        tabIndex={tabbable ? index[0] : -1}
+        onClick={(e) => {
+          changeHandler(1);
+        }}
+        data-state={activeButton === 1 ? "active" : ""}
+        className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
+        {buttonOne}
+      </button>
+      <button
+        tabIndex={tabbable ? index[1] : -1}
+        onClick={(e) => {
+          changeHandler(2);
+        }}
+        data-state={activeButton === 2 ? "active" : ""}
+        className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
+        {buttonTwo}
+      </button>
+    </div>
+  );
+});
 
 interface ValueBoxProps extends ComponentProps<"div"> {
-    value: number | null;
-    comparison: number | null;
-    min: number;
-    max: number;
-    tabbable: boolean;
-    index: number[];
-    valueBoxHandler: Function;
+  value: number | null;
+  upperBound?: number | null;
+  lowerBound?: number | null;
+  min: number;
+  max: number;
+  tabbable: boolean;
+  index: number[];
+  valueBoxHandler: Function;
 }
 
-const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(
-    (
-        {
-            children,
-            className,
-            value: valueProp,
-            comparison,
-            min,
-            max,
-            tabbable,
-            index,
-            valueBoxHandler,
-            ...props
-        },
-        ref
-    ) => {
-        let value = valueProp ?? 0;
-        return (
-            <div
-                ref={ref}
-                className={twMerge(
-                    "w-[145.6px] flex relative gap-1.5 bg-dex-fg-light py-1.5 px-1.5 items-center justify-center rounded-lg ",
-                    className
-                )}
-                {...props}>
-                <button
-                    tabIndex={tabbable ? index[0] : -1}
-                    onClick={(e) => {
-                        const newValue = value - 5;
-                        if (newValue === comparison) {
-                            return;
-                        }
-                        if (newValue >= min) {
-                            valueBoxHandler(newValue);
-                            value = newValue;
-                        }
-                    }}
-                    className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 mr-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="3.5"
-                        stroke="currentColor"
-                        className="size-4 p-0.5">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.75 19.5 8.25 12l7.5-7.5"
-                        />
-                    </svg>
-                </button>
-                <div className="w-[72px] h-7 px-6 select-none rounded-md drop-shadow-ms absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] bg-dex-bg p-2 text-dex-text text-sm font-medium text-center flex items-center justify-center">
-                    {value}
-                </div>
-                <button
-                    tabIndex={tabbable ? index[1] : -1}
-                    onClick={(e) => {
-                        const newValue = value + 5;
-                        if (newValue === comparison) {
-                            return;
-                        }
-                        if (newValue <= max) {
-                            valueBoxHandler(newValue);
-                            value = newValue;
-                        }
-                    }}
-                    className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 ml-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="3.5"
-                        stroke="currentColor"
-                        className="size-4 p-0.5">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                        />
-                    </svg>
-                </button>
-            </div>
-        );
-    }
-);
+const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(({ children, className, value: valueProp, upperBound, lowerBound, min, max, tabbable, index, valueBoxHandler, ...props }, ref) => {
+  const value = valueProp ?? 0;
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  const timerRef = useRef<number>(0);
 
-const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(
-    (
-        {
-            children,
-            className,
-            value: valueProp,
-            comparison,
-            min,
-            max,
-            tabbable,
-            index,
-            valueBoxHandler,
-            ...props
-        },
-        ref
-    ) => {
-        let value = valueProp ?? 0;
-        return (
-            <div
-                ref={ref}
-                className={twMerge(
-                    "w-[145.6px] flex relative gap-1.5 bg-dex-fg-light py-1.5 px-1.5 items-center justify-center rounded-lg ",
-                    className
-                )}
-                {...props}>
-                <button
-                    tabIndex={tabbable ? index[0] : -1}
-                    onClick={(e) => {
-                        const newValue = value - 0.5;
-                        if (newValue === comparison) {
-                            return;
-                        }
-                        if (newValue >= min) {
-                            valueBoxHandler(newValue);
-                            value = newValue;
-                        }
-                    }}
-                    className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 mr-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="3.5"
-                        stroke="currentColor"
-                        className="size-4 p-0.5">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15.75 19.5 8.25 12l7.5-7.5"
-                        />
-                    </svg>
-                </button>
-                <div className="w-[72px] h-7 px-6 select-none rounded-md drop-shadow-ms absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] bg-dex-bg p-2 text-dex-text text-sm font-medium text-center flex items-center justify-center">
-                    {value.toFixed(1)}
-                </div>
-                <button
-                    tabIndex={tabbable ? index[1] : -1}
-                    onClick={(e) => {
-                        const newValue = value + 0.5;
-                        if (newValue === comparison) {
-                            return;
-                        }
-                        if (newValue <= max) {
-                            valueBoxHandler(newValue);
-                            value = newValue;
-                        }
-                    }}
-                    className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 ml-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="3.5"
-                        stroke="currentColor"
-                        className="size-4 p-0.5">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                        />
-                    </svg>
-                </button>
-            </div>
-        );
+  function step(delta: number) {
+    const newValue = valueRef.current + delta;
+    if (delta < 0) {
+      if (lowerBound != null && newValue <= lowerBound) return;
+      if (newValue < min) return;
+    } else {
+      if (upperBound != null && newValue >= upperBound) return;
+      if (newValue > max) return;
     }
-);
+    valueRef.current = newValue;
+    valueBoxHandler(newValue);
+  }
+
+  function startHold(delta: number) {
+    step(delta);
+    timerRef.current = window.setTimeout(() => {
+      timerRef.current = window.setInterval(() => step(delta), 100);
+    }, 400);
+  }
+
+  function stopHold() {
+    clearTimeout(timerRef.current);
+    clearInterval(timerRef.current);
+  }
+
+  return (
+    <div ref={ref} className={twMerge("w-[145.6px] flex relative gap-1.5 bg-dex-fg-light py-1.5 px-1.5 items-center justify-center rounded-lg ", className)} {...props}>
+      <button
+        tabIndex={tabbable ? index[0] : -1}
+        onPointerDown={() => startHold(-5)}
+        onPointerUp={stopHold}
+        onPointerLeave={stopHold}
+        className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 mr-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
+        <ChevronLeft className="size-4 p-0.5" strokeWidth={3.5} />
+      </button>
+      <div className="w-[72px] h-7 px-6 select-none rounded-md drop-shadow-ms absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] bg-dex-bg p-2 text-dex-text text-sm font-medium text-center flex items-center justify-center">
+        {value}
+      </div>
+      <button
+        tabIndex={tabbable ? index[1] : -1}
+        onPointerDown={() => startHold(5)}
+        onPointerUp={stopHold}
+        onPointerLeave={stopHold}
+        className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 ml-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
+        <ChevronRight className="size-4 p-0.5" strokeWidth={3.5} />
+      </button>
+    </div>
+  );
+});
+
+const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(({ children, className, value: valueProp, upperBound, lowerBound, min, max, tabbable, index, valueBoxHandler, ...props }, ref) => {
+  const value = valueProp ?? 0;
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  const timerRef = useRef<number>(0);
+
+  function step(delta: number) {
+    const newValue = Math.round((valueRef.current + delta) * 10) / 10;
+    if (delta < 0) {
+      if (lowerBound != null && newValue <= lowerBound) return;
+      if (newValue < min) return;
+    } else {
+      if (upperBound != null && newValue >= upperBound) return;
+      if (newValue > max) return;
+    }
+    valueRef.current = newValue;
+    valueBoxHandler(newValue);
+  }
+
+  function startHold(delta: number) {
+    step(delta);
+    timerRef.current = window.setTimeout(() => {
+      timerRef.current = window.setInterval(() => step(delta), 100);
+    }, 400);
+  }
+
+  function stopHold() {
+    clearTimeout(timerRef.current);
+    clearInterval(timerRef.current);
+  }
+
+  return (
+    <div ref={ref} className={twMerge("w-[145.6px] flex relative gap-1.5 bg-dex-fg-light py-1.5 px-1.5 items-center justify-center rounded-lg ", className)} {...props}>
+      <button
+        tabIndex={tabbable ? index[0] : -1}
+        onPointerDown={() => startHold(-0.5)}
+        onPointerUp={stopHold}
+        onPointerLeave={stopHold}
+        className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 mr-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
+        <ChevronLeft className="size-4 p-0.5" strokeWidth={3.5} />
+      </button>
+      <div className="w-[72px] h-7 px-6 select-none rounded-md drop-shadow-ms absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] bg-dex-bg p-2 text-dex-text text-sm font-medium text-center flex items-center justify-center">
+        {value.toFixed(1)}
+      </div>
+      <button
+        tabIndex={tabbable ? index[1] : -1}
+        onPointerDown={() => startHold(0.5)}
+        onPointerUp={stopHold}
+        onPointerLeave={stopHold}
+        className="cursor-pointer focus-visible:outline-dex-green outline-transparent outline outline-2 ml-auto p-1 rounded text-dex-text-muted hover:text-dex-text-muted bg-dex-fg-light hover:bg-dex-fg">
+        <ChevronRight className="size-4 p-0.5" strokeWidth={3.5} />
+      </button>
+    </div>
+  );
+});

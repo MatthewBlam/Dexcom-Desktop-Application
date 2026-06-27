@@ -20,18 +20,16 @@ export function installProductionCSP(): void {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        "Content-Security-Policy": [
-          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'",
-        ],
+        "Content-Security-Policy": ["default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"],
       },
     });
   });
 }
 
-export function createMainWindow(bounds: WindowBounds): BrowserWindow {
+export function createMainWindow(bounds: WindowBounds, startHidden = false): BrowserWindow {
   const win = new BrowserWindow({
-    minWidth: 450,
-    minHeight: 400,
+    minWidth: 700,
+    minHeight: 600,
     width: bounds.width,
     height: bounds.height,
     show: false,
@@ -39,7 +37,7 @@ export function createMainWindow(bounds: WindowBounds): BrowserWindow {
     center: true,
     title: "Dexcom",
     frame: false,
-    titleBarStyle: "customButtonsOnHover",
+    titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 12, y: 12 },
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -49,13 +47,14 @@ export function createMainWindow(bounds: WindowBounds): BrowserWindow {
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    // win.webContents.openDevTools({ mode: "detach" });
   } else {
-    win.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
-    );
+    win.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  win.show();
+  if (!startHidden) {
+    win.show();
+  }
   return win;
 }
 
@@ -90,9 +89,7 @@ export function createWidgetWindow(): BrowserWindow {
   if (WIDGET_WINDOW_VITE_DEV_SERVER_URL) {
     widget.loadURL(WIDGET_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    widget.loadFile(
-      path.join(__dirname, `../renderer/${WIDGET_WINDOW_VITE_NAME}/index.html`)
-    );
+    widget.loadFile(path.join(__dirname, `../renderer/${WIDGET_WINDOW_VITE_NAME}/index.html`));
   }
 
   return widget;
