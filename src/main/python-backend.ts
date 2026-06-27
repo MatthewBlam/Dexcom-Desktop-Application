@@ -1,7 +1,7 @@
 import { spawn, ChildProcess } from "child_process";
 import path from "path";
 import WebSocket from "ws";
-import { Reading, Credentials } from "../shared/types";
+import { Reading, Credentials, ConnectionStatus } from "../shared/types";
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
 
@@ -15,8 +15,10 @@ export class PythonBackend {
   private ws: WebSocket | null = null;
   private credentials: Credentials | null = null;
   private stopping = false;
+  private _connectionStatus: ConnectionStatus = "disconnected";
 
   onReading: ((reading: Reading) => void) | null = null;
+  onConnectionStatusChange: ((status: ConnectionStatus) => void) | null = null;
   onAuthSuccess: (() => void) | null = null;
   onAuthError: ((error: string) => void) | null = null;
   onProcessError: (() => void) | null = null;
@@ -24,6 +26,17 @@ export class PythonBackend {
 
   get running(): boolean {
     return this.process !== null && this.process.exitCode === null;
+  }
+
+  get connectionStatus(): ConnectionStatus {
+    return this._connectionStatus;
+  }
+
+  private setConnectionStatus(status: ConnectionStatus): void {
+    if (status !== this._connectionStatus) {
+      this._connectionStatus = status;
+      this.onConnectionStatusChange?.(status);
+    }
   }
 
   async start(credentials: Credentials): Promise<void> {
@@ -72,6 +85,7 @@ export class PythonBackend {
       this.onAuthSuccess?.();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
+      this.kill();
       this.onAuthError?.(message);
     }
   }
@@ -185,9 +199,18 @@ export class PythonBackend {
 
     this.ws = new WebSocket(`ws://127.0.0.1:${this.port}/ws/glucose`);
 
+    this.ws.on("open", () => {
+      this.setConnectionStatus("connected");
+    });
+
     this.ws.on("message", (data: WebSocket.Data) => {
       try {
-        const reading: Reading = JSON.parse(data.toString());
+        const parsed = JSON.parse(data.toString());
+        if (parsed.error) {
+          console.warn("[python-backend] server error:", parsed.error);
+          return;
+        }
+        const reading: Reading = parsed;
         this.onReading?.(reading);
       } catch (err) {
         console.error("[python-backend] failed to parse WS message:", err);
@@ -196,6 +219,7 @@ export class PythonBackend {
 
     this.ws.on("close", () => {
       if (this.running && !this.stopping) {
+        this.setConnectionStatus("reconnecting");
         setTimeout(() => this.connectWebSocket(), WS_RECONNECT_DELAY_MS);
       }
     });
@@ -211,6 +235,21 @@ export class PythonBackend {
       this.ws.close();
       this.ws = null;
     }
+    this.setConnectionStatus("disconnected");
+  }
+
+  async getHistory(minutes: number): Promise<Reading[]> {
+    return this.httpGet(`/glucose/history?minutes=${minutes}&max_count=288`);
+  }
+
+  private async httpGet(urlPath: string): Promise<any> {
+    const url = `http://127.0.0.1:${this.port}${urlPath}`;
+    const resp = await fetch(url);
+    const json = await resp.json();
+    if (!resp.ok) {
+      throw new Error(json.detail ?? `HTTP ${resp.status}`);
+    }
+    return json;
   }
 
   private async httpPost(urlPath: string, body?: object): Promise<any> {

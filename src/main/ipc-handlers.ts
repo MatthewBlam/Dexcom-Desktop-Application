@@ -9,6 +9,7 @@ export interface AppContext {
   trayManager: TrayManager;
   startPythonBackend: (credentials: Credentials) => Promise<void>;
   stopPython: () => Promise<void>;
+  getHistory: (minutes: number) => Promise<Reading[]>;
   pushToRenderer: (channel: string, ...args: any[]) => void;
   pushToWidget: (channel: string, ...args: any[]) => void;
   openWidget: (focus: string | null) => void;
@@ -36,13 +37,21 @@ export function registerIpcHandlers(ctx: AppContext): void {
 
   ipcMain.handle(IpcChannels.AUTH_LOGIN, async (_e, credentials: Credentials) => {
     console.log("Logging in with:", credentials.user);
-    await ctx.startPythonBackend(credentials);
+    try {
+      await ctx.startPythonBackend(credentials);
+    } catch (err) {
+      console.error("Failed to start Python backend:", err);
+      ctx.pushToRenderer(PushChannels.AUTH_ERROR, err instanceof Error ? err.message : String(err));
+    }
   });
 
   ipcMain.handle(IpcChannels.AUTH_LOGOUT, async () => {
-    ctx.storage.resetCredentials();
-    ctx.trayManager.reset();
-    await ctx.stopPython();
+    try {
+      ctx.storage.resetCredentials();
+      ctx.trayManager.reset();
+    } finally {
+      await ctx.stopPython();
+    }
   });
 
   ipcMain.handle(IpcChannels.SETTINGS_GET, () => {
@@ -50,8 +59,16 @@ export function registerIpcHandlers(ctx: AppContext): void {
   });
 
   ipcMain.handle(IpcChannels.SETTINGS_SAVE, (_e, settings: Settings) => {
-    ctx.storage.saveSettings(settings);
-    ctx.pushToWidget(PushChannels.SETTINGS, settings);
+    try {
+      const prev = ctx.storage.getSettings();
+      ctx.storage.saveSettings(settings);
+      ctx.pushToWidget(PushChannels.SETTINGS, settings);
+      if (settings.launchAtLogin !== prev.launchAtLogin) {
+        app.setLoginItemSettings({ openAtLogin: settings.launchAtLogin });
+      }
+    } catch (err) {
+      console.error("Failed to save settings:", err);
+    }
   });
 
   ipcMain.handle(IpcChannels.WIDGET_OPEN, (_e, focus: string | null) => {
@@ -93,6 +110,39 @@ export function registerIpcHandlers(ctx: AppContext): void {
   );
 
   ipcMain.handle(IpcChannels.TRAY_RESET, () => ctx.trayManager.reset());
+
+  ipcMain.handle(IpcChannels.HISTORY_GET_SPLIT, () =>
+    ctx.storage.getHistorySplit()
+  );
+
+  ipcMain.handle(IpcChannels.HISTORY_SAVE_SPLIT, (_e, percent: number) =>
+    ctx.storage.saveHistorySplit(percent)
+  );
+
+  ipcMain.handle(IpcChannels.HISTORY_GET_TIME_RANGE, () =>
+    ctx.storage.getHistoryTimeRange()
+  );
+
+  ipcMain.handle(IpcChannels.HISTORY_SAVE_TIME_RANGE, (_e, minutes: number) =>
+    ctx.storage.saveHistoryTimeRange(minutes)
+  );
+
+  ipcMain.handle(IpcChannels.HISTORY_GET_GRAPH_HEIGHT, () =>
+    ctx.storage.getHistoryGraphHeight()
+  );
+
+  ipcMain.handle(IpcChannels.HISTORY_SAVE_GRAPH_HEIGHT, (_e, height: number) =>
+    ctx.storage.saveHistoryGraphHeight(height)
+  );
+
+  ipcMain.handle(IpcChannels.HISTORY_GET, async (_e, minutes: number) => {
+    try {
+      return await ctx.getHistory(minutes);
+    } catch (err) {
+      console.error("Failed to get history:", err);
+      return [];
+    }
+  });
 
   ipcMain.handle(IpcChannels.TRAY_SET_WIDGET_STATE, (_e, open: boolean) => {
     if (open) {

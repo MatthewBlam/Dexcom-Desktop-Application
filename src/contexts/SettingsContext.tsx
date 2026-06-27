@@ -13,6 +13,18 @@ interface SettingsContextValue {
     setHighSettingMMOLL: React.Dispatch<React.SetStateAction<number>>;
     lowSettingMMOLL: number;
     setLowSettingMMOLL: React.Dispatch<React.SetStateAction<number>>;
+    criticalLowSetting: number;
+    setCriticalLowSetting: React.Dispatch<React.SetStateAction<number>>;
+    criticalLowSettingMMOLL: number;
+    setCriticalLowSettingMMOLL: React.Dispatch<React.SetStateAction<number>>;
+    launchAtLoginSetting: boolean;
+    setLaunchAtLoginSetting: React.Dispatch<React.SetStateAction<boolean>>;
+    widgetOpacitySetting: number;
+    setWidgetOpacitySetting: React.Dispatch<React.SetStateAction<number>>;
+    widgetShowIndicatorSetting: boolean;
+    setWidgetShowIndicatorSetting: React.Dispatch<React.SetStateAction<boolean>>;
+    widgetShowSparklineSetting: boolean;
+    setWidgetShowSparklineSetting: React.Dispatch<React.SetStateAction<boolean>>;
     widgetOpen: boolean;
     setWidgetOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -32,6 +44,12 @@ export default function SettingsContextProvider({
     const [lowSetting, setLowSetting] = useState<number>(70);
     const [highSettingMMOLL, setHighSettingMMOLL] = useState<number>(11.0);
     const [lowSettingMMOLL, setLowSettingMMOLL] = useState<number>(4.0);
+    const [criticalLowSetting, setCriticalLowSetting] = useState<number>(55);
+    const [criticalLowSettingMMOLL, setCriticalLowSettingMMOLL] = useState<number>(3.0);
+    const [launchAtLoginSetting, setLaunchAtLoginSetting] = useState<boolean>(false);
+    const [widgetOpacitySetting, setWidgetOpacitySetting] = useState<number>(1.0);
+    const [widgetShowIndicatorSetting, setWidgetShowIndicatorSetting] = useState<boolean>(true);
+    const [widgetShowSparklineSetting, setWidgetShowSparklineSetting] = useState<boolean>(true);
     const [widgetOpen, setWidgetOpen] = useState<boolean>(false);
     return (
         <SettingsContext.Provider
@@ -48,6 +66,18 @@ export default function SettingsContextProvider({
                 setHighSettingMMOLL,
                 lowSettingMMOLL,
                 setLowSettingMMOLL,
+                criticalLowSetting,
+                setCriticalLowSetting,
+                criticalLowSettingMMOLL,
+                setCriticalLowSettingMMOLL,
+                launchAtLoginSetting,
+                setLaunchAtLoginSetting,
+                widgetOpacitySetting,
+                setWidgetOpacitySetting,
+                widgetShowIndicatorSetting,
+                setWidgetShowIndicatorSetting,
+                widgetShowSparklineSetting,
+                setWidgetShowSparklineSetting,
                 widgetOpen,
                 setWidgetOpen,
             }}>

@@ -78,8 +78,17 @@ class GlucoseService:
         raw = await loop.run_in_executor(None, self._dexcom.get_current_glucose_reading)
         return _convert_reading(raw)
 
+    async def get_readings_history(self, minutes: int = 1440, max_count: int = 288) -> list[GlucoseReading]:
+        if self._dexcom is None:
+            raise RuntimeError("Not authenticated")
+        loop = asyncio.get_running_loop()
+        raw = await loop.run_in_executor(
+            None, partial(self._dexcom.get_glucose_readings, minutes=minutes, max_count=max_count)
+        )
+        return [_convert_reading(r) for r in (raw or [])]
+
     async def start_polling(self) -> None:
-        if self._polling_task is not None:
+        if self._polling_task is not None and not self._polling_task.done():
             return
         self._polling_task = asyncio.create_task(self._poll_loop())
 
@@ -105,10 +114,16 @@ class GlucoseService:
                 try:
                     reading = await self.get_current_reading()
                     if reading.id not in self._seen_ids:
-                        self._seen_ids.add(reading.id)
                         if self.on_reading:
                             await self.on_reading(reading)
+                        self._seen_ids.add(reading.id)
+                        if len(self._seen_ids) > 500:
+                            self._seen_ids.clear()
+                            self._seen_ids.add(reading.id)
                 except Exception as exc:
                     if self.on_error:
-                        await self.on_error(exc)
+                        try:
+                            await self.on_error(exc)
+                        except Exception:
+                            pass
             await asyncio.sleep(60)

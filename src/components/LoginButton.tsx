@@ -1,6 +1,5 @@
 import { ComponentProps, forwardRef, MouseEventHandler } from "react";
 import { twMerge } from "tailwind-merge";
-import { useSettingsContext } from "../contexts/SettingsContext";
 
 export interface LoginButtonProps extends ComponentProps<"button"> {
     click: MouseEventHandler;
@@ -15,8 +14,6 @@ export const LoginButton = forwardRef<HTMLButtonElement, LoginButtonProps>(
         ref
     ) => {
         const tabIndex = tabbable ? 0 : -1;
-        const { sensorSetting } = useSettingsContext();
-        const G7theme = sensorSetting === "G7" ? true : false;
         return (
             <button
                 tabIndex={tabIndex}
@@ -24,8 +21,7 @@ export const LoginButton = forwardRef<HTMLButtonElement, LoginButtonProps>(
                 disabled={disabled}
                 onClick={click}
                 className={twMerge(
-                    G7theme ? "ring-offset-dex-fg" : "ring-offset-dex-bg",
-                    "cursor-pointer disabled:cursor-not-allowed disabled:hover:bg-dex-green select-none appearance-none font-medium text-base text-dex-bg bg-dex-green outline-none ring-2 ring-transparent ring-offset-2 focus-visible:ring-2 focus-visible:ring-dex-green hover:bg-dex-green-hover p-2 rounded-full",
+                    "ring-offset-dex-fg cursor-pointer disabled:cursor-not-allowed disabled:hover:bg-dex-green select-none appearance-none font-medium text-base text-dex-bg bg-dex-green outline-none ring-2 ring-transparent ring-offset-2 focus-visible:ring-2 focus-visible:ring-dex-green hover:bg-dex-green-hover p-2 rounded-full",
                     className
                 )}
                 {...props}>

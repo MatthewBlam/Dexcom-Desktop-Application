@@ -17,7 +17,7 @@ ws_clients: set[WebSocket] = set()
 async def broadcast_reading(reading: GlucoseReading) -> None:
     data = reading.model_dump_json()
     disconnected: list[WebSocket] = []
-    for ws in ws_clients:
+    for ws in list(ws_clients):
         try:
             await ws.send_text(data)
         except Exception:
@@ -29,7 +29,7 @@ async def broadcast_reading(reading: GlucoseReading) -> None:
 async def handle_error(exc: Exception) -> None:
     data = json.dumps({"error": f"{type(exc).__name__}: {exc}"})
     disconnected: list[WebSocket] = []
-    for ws in ws_clients:
+    for ws in list(ws_clients):
         try:
             await ws.send_text(data)
         except Exception:
@@ -55,6 +55,12 @@ async def login(req: LoginRequest) -> dict[str, str]:
         return {"status": "error", "error": str(e)}
     await service.start_polling()
     return {"status": "ok"}
+
+
+@app.get("/glucose/history")
+async def glucose_history(minutes: int = 1440, max_count: int = 288):
+    readings = await service.get_readings_history(minutes, max_count)
+    return [r.model_dump() for r in readings]
 
 
 @app.post("/pause")

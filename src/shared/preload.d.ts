@@ -1,4 +1,4 @@
-import type { Credentials, Reading, Settings } from "./types";
+import type { ConnectionStatus, Credentials, Reading, Settings } from "./types";
 
 export interface DexcomApi {
     // Settings
@@ -26,6 +26,15 @@ export interface DexcomApi {
     getCurrentReading(): Promise<Reading>;
     saveReading(reading: Reading): Promise<void>;
 
+    // History
+    getHistory(minutes: number): Promise<Reading[]>;
+    getHistorySplit(): Promise<number>;
+    saveHistorySplit(percent: number): Promise<void>;
+    getHistoryTimeRange(): Promise<number>;
+    saveHistoryTimeRange(minutes: number): Promise<void>;
+    getHistoryGraphHeight(): Promise<number>;
+    saveHistoryGraphHeight(height: number): Promise<void>;
+
     // Tray
     resetTray(): Promise<void>;
     setTrayWidgetState(open: boolean): Promise<void>;
@@ -41,6 +50,8 @@ export interface DexcomApi {
     onTrayCloseWidget(callback: () => void): () => void;
     onLog(callback: (messages: any[]) => void): () => void;
     onSettings(callback: (settings: Settings) => void): () => void;
+    onConnectionStatus(callback: (status: ConnectionStatus) => void): () => void;
+    onHistoryBackfill(callback: (readings: Reading[]) => void): () => void;
 }
 
 declare global {

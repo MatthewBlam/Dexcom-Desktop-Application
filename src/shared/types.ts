@@ -26,7 +26,15 @@ export interface Settings {
     low: number;
     highMMOLL: number;
     lowMMOLL: number;
+    criticalLow: number;
+    criticalLowMMOLL: number;
+    launchAtLogin: boolean;
+    widgetOpacity: number;
+    widgetShowIndicator: boolean;
+    widgetShowSparkline: boolean;
 }
+
+export type ConnectionStatus = "connected" | "reconnecting" | "disconnected";
 
 export interface Credentials {
     user: string;
@@ -57,4 +65,10 @@ export const DEFAULT_SETTINGS: Settings = {
     low: 70,
     highMMOLL: 11.0,
     lowMMOLL: 4.0,
+    criticalLow: 55,
+    criticalLowMMOLL: 3.0,
+    launchAtLogin: false,
+    widgetOpacity: 1.0,
+    widgetShowIndicator: true,
+    widgetShowSparkline: true,
 };
