@@ -97,5 +97,3 @@ __pycache__/
 # Electron-Forge
 out/
 
-# Demo video (hosted via GitHub Releases)
-Dexcom-macOS-Demo.mp4

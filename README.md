@@ -1,6 +1,6 @@
 <!-- PROJECT LOGO -->
 <div align="center">
-  <a href="https://github.com/MatthewBlam/Dexcom-Desktop-Application/releases/tag/v1.0.0">
+  <a href="https://github.com/MatthewBlam/Dexcom-macOS/releases/tag/v1.0.0">
     <img src="src/graphics/app-icon-1024.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -10,11 +10,11 @@
     View and monitor your Dexcom blood glucose readings on the computer
     <br />
     <br />
-    Download here: <a href="https://github.com/MatthewBlam/Dexcom-Desktop-Application/releases/tag/v1.0.0">v1.0.0</a>
+    Download here: <a href="https://github.com/MatthewBlam/Dexcom-macOS/releases/tag/v1.0.0">v1.0.0</a>
   </p>
 </div>
 
-<video src="Dexcom-macOS-Demo.mp4" autoplay loop muted playsinline></video>
+<video src="dexcom-macos-demo.mp4" autoplay loop muted playsinline></video>
 
 ## Architecture
 
@@ -116,4 +116,3 @@ This compiles the Python backend with PyInstaller and packages the Electron app.
 | Backend           | FastAPI, uvicorn, pydexcom                      |
 | Testing           | Vitest, React Testing Library, pytest           |
 | Linting           | ESLint 10 (flat config), typescript-eslint      |
-
