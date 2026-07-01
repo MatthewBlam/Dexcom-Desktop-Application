@@ -1,6 +1,6 @@
 <!-- PROJECT LOGO -->
 <div align="center">
-  <a href="https://github.com/MatthewBlam/Dexcom-Desktop-Application/releases/tag/v1.0.0">
+  <a href="https://github.com/MatthewBlam/Dexcom-macOS/releases/tag/v1.0.0">
     <img src="src/graphics/app-icon-1024.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -10,11 +10,11 @@
     View and monitor your Dexcom blood glucose readings on the computer
     <br />
     <br />
-    Download here: <a href="https://github.com/MatthewBlam/Dexcom-Desktop-Application/releases/tag/v1.0.0">v1.0.0</a>
+    Download here: <a href="https://github.com/MatthewBlam/Dexcom-macOS/releases/tag/v1.0.0">v1.0.0</a>
   </p>
 </div>
 
-[![DexcomDesktopApplication Image][app-image]](https://github.com/MatthewBlam/Dexcom-Desktop-Application)
+<video src="dexcom-macos-demo.mp4" autoplay loop muted playsinline></video>
 
 ## Architecture
 
@@ -32,6 +32,7 @@ src/
     tray.ts                #   System tray management
     menu.ts                #   Native menu template
     logger.ts              #   Rotating file logger (electron-log)
+    launch-agent.ts        #   macOS LaunchAgent login item management
   shared/                  # Shared between main & renderer
     types.ts               #   Domain types (Reading, Settings, Credentials)
     ipc-channels.ts        #   Typed IPC channel constants
@@ -50,6 +51,7 @@ src/
   __tests__/               # Vitest + React Testing Library
 
 python/
+  entry.py                 # PyInstaller entry point
   dexcom_server/
     main.py                # FastAPI app (HTTP + WebSocket)
     glucose_service.py     # Async glucose polling via pydexcom
@@ -66,7 +68,7 @@ python/
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 18
+- [Node.js](https://nodejs.org/) >= 18, < 24
 - [Python](https://www.python.org/) >= 3.12
 - npm
 
@@ -114,7 +116,3 @@ This compiles the Python backend with PyInstaller and packages the Electron app.
 | Backend           | FastAPI, uvicorn, pydexcom                      |
 | Testing           | Vitest, React Testing Library, pytest           |
 | Linting           | ESLint 10 (flat config), typescript-eslint      |
-
-<!-- MARKDOWN LINKS & IMAGES -->
-
-[app-image]: dexcom_app.png
