@@ -1,48 +1,25 @@
-import { ComponentProps, forwardRef, useRef } from "react";
+import { ComponentProps, forwardRef, useEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import { HTMLMotionProps, motion } from "motion/react";
 import { Button } from "./Button";
 import { Slider } from "./Slider";
 import { Toggle } from "./Toggle";
 import { RotateCcw, ChevronLeft, ChevronRight, Info } from "lucide-react";
-import { DEFAULT_SETTINGS } from "../shared/types";
+import { Settings as SettingsType } from "../shared/types";
 
 export interface SettingsProps extends HTMLMotionProps<"div"> {
   active: boolean;
-  closeSettings: Function;
-  storeSettings: Function;
   settingsTabbable: boolean;
+  draft: SettingsType;
+  updateDraft: (partial: Partial<SettingsType>) => void;
+  onSave: () => void;
+  onClose: () => void;
+  onReset: () => void;
   confirmActive: boolean;
-  openConfirm: Function;
-  closeConfirm: Function;
-  logoutClick: Function;
   confirmTabbable: boolean;
-
-  sensorState: string | null;
-  unitState: string | null;
-  highState: number | null;
-  lowState: number | null;
-  highMMOLLState: number | null;
-  lowMMOLLState: number | null;
-  criticalLowState: number | null;
-  criticalLowMMOLLState: number | null;
-  launchAtLoginState: boolean;
-  widgetOpacityState: number;
-  widgetShowIndicatorState: boolean;
-  widgetShowSparklineState: boolean;
-
-  setSensorState: Function;
-  setUnitState: Function;
-  setHighState: Function;
-  setLowState: Function;
-  setHighMMOLLState: Function;
-  setLowMMOLLState: Function;
-  setCriticalLowState: Function;
-  setCriticalLowMMOLLState: Function;
-  setLaunchAtLoginState: Function;
-  setWidgetOpacityState: Function;
-  setWidgetShowIndicatorState: Function;
-  setWidgetShowSparklineState: Function;
+  onOpenConfirm: () => void;
+  onCloseConfirm: (logout?: boolean) => void;
+  onLogout: () => void;
 }
 
 const variants = {
@@ -56,40 +33,17 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
       children,
       className,
       active,
-      closeSettings,
-      storeSettings,
       settingsTabbable,
+      draft,
+      updateDraft,
+      onSave,
+      onClose,
+      onReset,
       confirmActive,
-      openConfirm,
-      closeConfirm,
-      logoutClick,
       confirmTabbable,
-
-      sensorState,
-      unitState,
-      highState,
-      lowState,
-      highMMOLLState,
-      lowMMOLLState,
-      criticalLowState,
-      criticalLowMMOLLState,
-      launchAtLoginState,
-      widgetOpacityState,
-      widgetShowIndicatorState,
-      widgetShowSparklineState,
-
-      setSensorState,
-      setUnitState,
-      setHighState,
-      setLowState,
-      setHighMMOLLState,
-      setLowMMOLLState,
-      setCriticalLowState,
-      setCriticalLowMMOLLState,
-      setLaunchAtLoginState,
-      setWidgetOpacityState,
-      setWidgetShowIndicatorState,
-      setWidgetShowSparklineState,
+      onOpenConfirm,
+      onCloseConfirm,
+      onLogout,
       ...props
     },
     ref,
@@ -100,40 +54,6 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
     const lowElement = useRef(null);
     const highElementMMOLL = useRef(null);
     const lowElementMMOLL = useRef(null);
-    function resetToDefaults() {
-      setSensorState(DEFAULT_SETTINGS.sensor);
-      setUnitState(DEFAULT_SETTINGS.unit);
-      setHighState(DEFAULT_SETTINGS.high);
-      setLowState(DEFAULT_SETTINGS.low);
-      setHighMMOLLState(DEFAULT_SETTINGS.highMMOLL);
-      setLowMMOLLState(DEFAULT_SETTINGS.lowMMOLL);
-      setCriticalLowState(DEFAULT_SETTINGS.criticalLow);
-      setCriticalLowMMOLLState(DEFAULT_SETTINGS.criticalLowMMOLL);
-      setLaunchAtLoginState(DEFAULT_SETTINGS.launchAtLogin);
-      setWidgetOpacityState(DEFAULT_SETTINGS.widgetOpacity);
-      setWidgetShowIndicatorState(DEFAULT_SETTINGS.widgetShowIndicator);
-      setWidgetShowSparklineState(DEFAULT_SETTINGS.widgetShowSparkline);
-    }
-
-    function saveSettings() {
-      const settings = {
-        sensor: sensorState,
-        unit: unitState,
-        high: highState,
-        low: lowState,
-        highMMOLL: highMMOLLState,
-        lowMMOLL: lowMMOLLState,
-        criticalLow: criticalLowState,
-        criticalLowMMOLL: criticalLowMMOLLState,
-        launchAtLogin: launchAtLoginState,
-        widgetOpacity: widgetOpacityState,
-        widgetShowIndicator: widgetShowIndicatorState,
-        widgetShowSparkline: widgetShowSparklineState,
-      };
-      console.log("SAVING SETTINGS", settings);
-      storeSettings(settings);
-      closeSettings();
-    }
 
     return (
       <>
@@ -155,7 +75,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                 <span className="text-dex-text text-xl select-none font-semibold ml-0.5">Settings</span>
                 <button
                   tabIndex={settingsTabbable ? 12 : -1}
-                  onClick={resetToDefaults}
+                  onClick={onReset}
                   className="group relative cursor-pointer appearance-none focus-visible:outline-dex-green ml-auto text-dex-text-muted hover:text-dex-text transition-all duration-[0.03s]">
                   <RotateCcw className="size-4" strokeWidth={2.35} />
                   <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 px-2 py-1 text-[10px] font-medium text-dex-bg bg-dex-text rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap">
@@ -168,16 +88,16 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                 <div className="w-full flex flex-col content-start gap-8">
                   <div className="low">
                     <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Low</div>
-                    {unitState === "mg/dl" ? (
-                      <ValueBox valueBoxHandler={setLowState} upperBound={highState} tabbable={settingsTabbable} index={[1, 2]} ref={lowElement} value={lowState} min={60} max={150}></ValueBox>
+                    {draft.unit === "mg/dl" ? (
+                      <ValueBox valueBoxHandler={(v) => updateDraft({ low: v })} upperBound={draft.high} tabbable={settingsTabbable} index={[1, 2]} ref={lowElement} value={draft.low} min={60} max={150}></ValueBox>
                     ) : (
                       <ValueBoxMMOLL
-                        valueBoxHandler={setLowMMOLLState}
-                        upperBound={highMMOLLState}
+                        valueBoxHandler={(v) => updateDraft({ lowMMOLL: v })}
+                        upperBound={draft.highMMOLL}
                         tabbable={settingsTabbable}
                         index={[1, 2]}
                         ref={lowElementMMOLL}
-                        value={lowMMOLLState}
+                        value={draft.lowMMOLL}
                         min={3.5}
                         max={8.5}></ValueBoxMMOLL>
                     )}
@@ -186,22 +106,18 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                     <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Theme</div>
                     <SegmentedButton
                       changeHandler={(btn: number) => {
-                        if (btn === 1) {
-                          setSensorState("G7");
-                        } else {
-                          setSensorState("G6");
-                        }
+                        updateDraft({ sensor: btn === 1 ? "G7" : "G6" });
                       }}
                       tabbable={settingsTabbable}
                       index={[5, 6]}
                       ref={sensorElement}
                       buttonOne="G7"
                       buttonTwo="G6"
-                      activeButton={sensorState === "G7" ? 1 : 2}></SegmentedButton>
+                      activeButton={draft.sensor === "G7" ? 1 : 2}></SegmentedButton>
                   </div>
                   <div className="widget-indicator">
                     <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Widget Indicator</div>
-                    <Toggle checked={widgetShowIndicatorState} onChange={(v) => setWidgetShowIndicatorState(v)} tabIndex={settingsTabbable ? 21 : -1} />
+                    <Toggle checked={draft.widgetShowIndicator} onChange={(v) => updateDraft({ widgetShowIndicator: v })} tabIndex={settingsTabbable ? 21 : -1} />
                   </div>
                   <div className="widget-opacity">
                     <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Widget Opacity</div>
@@ -209,8 +125,8 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                       min={0.3}
                       max={1.0}
                       step={0.05}
-                      value={widgetOpacityState}
-                      onChange={(v) => setWidgetOpacityState(v)}
+                      value={draft.widgetOpacity}
+                      onChange={(v) => updateDraft({ widgetOpacity: v })}
                       formatLabel={(v) => `${Math.round(v * 100)}%`}
                       tabIndex={settingsTabbable ? 20 : -1}
                     />
@@ -220,16 +136,16 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                 <div className="w-full flex flex-col content-start gap-8">
                   <div className="high">
                     <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">High</div>
-                    {unitState === "mg/dl" ? (
-                      <ValueBox valueBoxHandler={setHighState} lowerBound={lowState} tabbable={settingsTabbable} index={[3, 4]} ref={highElement} value={highState} min={150} max={400}></ValueBox>
+                    {draft.unit === "mg/dl" ? (
+                      <ValueBox valueBoxHandler={(v) => updateDraft({ high: v })} lowerBound={draft.low} tabbable={settingsTabbable} index={[3, 4]} ref={highElement} value={draft.high} min={150} max={400}></ValueBox>
                     ) : (
                       <ValueBoxMMOLL
-                        valueBoxHandler={setHighMMOLLState}
-                        lowerBound={lowMMOLLState}
+                        valueBoxHandler={(v) => updateDraft({ highMMOLL: v })}
+                        lowerBound={draft.lowMMOLL}
                         tabbable={settingsTabbable}
                         index={[3, 4]}
                         ref={highElementMMOLL}
-                        value={highMMOLLState}
+                        value={draft.highMMOLL}
                         min={8.5}
                         max={22.0}></ValueBoxMMOLL>
                     )}
@@ -238,22 +154,18 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                     <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Unit</div>
                     <SegmentedButton
                       changeHandler={(btn: number) => {
-                        if (btn === 1) {
-                          setUnitState("mg/dl");
-                        } else {
-                          setUnitState("mmol/l");
-                        }
+                        updateDraft({ unit: btn === 1 ? "mg/dl" : "mmol/l" });
                       }}
                       tabbable={settingsTabbable}
                       index={[7, 8]}
                       ref={unitElement}
                       buttonOne="mg/dl"
                       buttonTwo="mmol/l"
-                      activeButton={unitState === "mg/dl" ? 1 : 2}></SegmentedButton>
+                      activeButton={draft.unit === "mg/dl" ? 1 : 2}></SegmentedButton>
                   </div>
                   <div className="widget-sparkline">
                     <div className="text-dex-text text-sm select-none font-medium mb-1.5 ml-0.5">Widget Sparkline</div>
-                    <Toggle checked={widgetShowSparklineState} onChange={(v) => setWidgetShowSparklineState(v)} tabIndex={settingsTabbable ? 22 : -1} />
+                    <Toggle checked={draft.widgetShowSparkline} onChange={(v) => updateDraft({ widgetShowSparkline: v })} tabIndex={settingsTabbable ? 22 : -1} />
                   </div>
                   <div className="launch-at-login">
                     <div className="flex items-center gap-1.5 mb-1.5 ml-0.5">
@@ -265,7 +177,7 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                         </div>
                       </div>
                     </div>
-                    <Toggle checked={launchAtLoginState} onChange={(v) => setLaunchAtLoginState(v)} tabIndex={settingsTabbable ? 16 : -1} />
+                    <Toggle checked={draft.launchAtLogin} onChange={(v) => updateDraft({ launchAtLogin: v })} tabIndex={settingsTabbable ? 16 : -1} />
                   </div>
                 </div>
               </div>
@@ -277,25 +189,21 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
                   tabbable={settingsTabbable}
                   tabIndex={settingsTabbable ? 11 : -1}
                   click={() => {
-                    closeSettings();
-                    openConfirm();
+                    onClose();
+                    onOpenConfirm();
                   }}></Button>
                 <Button
                   className="text-sm py-2 pl-3.5 pr-[14.25px] bg-dex-bg hover:bg-dex-bg text-dex-text-muted hover:text-dex-text "
                   text="Cancel"
                   tabbable={settingsTabbable}
                   tabIndex={settingsTabbable ? 10 : -1}
-                  click={() => {
-                    closeSettings();
-                  }}></Button>
+                  click={onClose}></Button>
                 <Button
                   className="focus-visible:outline-dex-green outline-transparent text-sm py-2 pl-3.5 pr-[14.25px]"
                   text="Save"
                   tabbable={settingsTabbable}
                   tabIndex={settingsTabbable ? 9 : -1}
-                  click={() => {
-                    saveSettings();
-                  }}></Button>
+                  click={onSave}></Button>
               </div>
             </div>
           </div>
@@ -316,15 +224,15 @@ export const Settings = forwardRef<HTMLDivElement, SettingsProps>(
               text="No"
               tabbable={confirmTabbable}
               click={() => {
-                closeConfirm();
+                onCloseConfirm();
               }}></Button>
             <Button
               className="focus-visible:outline-dex-green outline-transparent text-sm py-2 pl-3.5 pr-[14.25px]"
               text="Yes"
               tabbable={confirmTabbable}
               click={() => {
-                logoutClick();
-                closeConfirm(true);
+                onLogout();
+                onCloseConfirm(true);
               }}></Button>
           </div>
         </motion.div>
@@ -339,7 +247,7 @@ interface SegmentedButtonProps extends ComponentProps<"div"> {
   activeButton: 1 | 2;
   tabbable: boolean;
   index: number[];
-  changeHandler: Function;
+  changeHandler: (btn: number) => void;
 }
 
 const SegmentedButton = forwardRef<HTMLDivElement, SegmentedButtonProps>(({ children, className, buttonOne, buttonTwo, activeButton, tabbable, index, changeHandler, ...props }, ref) => {
@@ -347,20 +255,20 @@ const SegmentedButton = forwardRef<HTMLDivElement, SegmentedButtonProps>(({ chil
     <div ref={ref} className={twMerge("w-fit flex items-center justify-center p-1 gap-1 rounded-lg bg-dex-fg-light text-dex-text-light", className)} {...props}>
       <button
         tabIndex={tabbable ? index[0] : -1}
-        onClick={(e) => {
+        onClick={() => {
           changeHandler(1);
         }}
         data-state={activeButton === 1 ? "active" : ""}
-        className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
+        className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md min-w-[72px] px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
         {buttonOne}
       </button>
       <button
         tabIndex={tabbable ? index[1] : -1}
-        onClick={(e) => {
+        onClick={() => {
           changeHandler(2);
         }}
         data-state={activeButton === 2 ? "active" : ""}
-        className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
+        className="cursor-pointer focus-visible:outline-dex-green select-none outline-transparent outline outline-2 flex items-center justify-center whitespace-nowrap rounded-md min-w-[72px] px-6 py-1 text-sm font-normal hover:bg-dex-fg data-[state=active]:bg-dex-bg data-[state=active]:drop-shadow-ms data-[state=active]:text-dex-text data-[state=active]:font-medium">
         {buttonTwo}
       </button>
     </div>
@@ -375,7 +283,7 @@ interface ValueBoxProps extends ComponentProps<"div"> {
   max: number;
   tabbable: boolean;
   index: number[];
-  valueBoxHandler: Function;
+  valueBoxHandler: (value: number) => void;
 }
 
 const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(({ children, className, value: valueProp, upperBound, lowerBound, min, max, tabbable, index, valueBoxHandler, ...props }, ref) => {
@@ -383,6 +291,13 @@ const ValueBox = forwardRef<HTMLDivElement, ValueBoxProps>(({ children, classNam
   const valueRef = useRef(value);
   valueRef.current = value;
   const timerRef = useRef<number>(0);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(timerRef.current);
+      clearInterval(timerRef.current);
+    };
+  }, []);
 
   function step(delta: number) {
     const newValue = valueRef.current + delta;
@@ -439,6 +354,13 @@ const ValueBoxMMOLL = forwardRef<HTMLDivElement, ValueBoxProps>(({ children, cla
   const valueRef = useRef(value);
   valueRef.current = value;
   const timerRef = useRef<number>(0);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(timerRef.current);
+      clearInterval(timerRef.current);
+    };
+  }, []);
 
   function step(delta: number) {
     const newValue = Math.round((valueRef.current + delta) * 10) / 10;

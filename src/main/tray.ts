@@ -8,8 +8,8 @@ declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
 type PushFn = (channel: string, ...args: any[]) => void;
 
 export class TrayManager {
-  private tray!: Tray;
-  private menu!: Menu;
+  private tray: Tray | null = null;
+  private menu: Menu | null = null;
   private pushToRenderer: PushFn;
 
   constructor(pushToRenderer: PushFn) {
@@ -53,22 +53,26 @@ export class TrayManager {
   }
 
   showOpenWidgetMenu(): void {
+    if (!this.menu) return;
     this.menu.getMenuItemById("close-widget")!.visible = false;
     this.menu.getMenuItemById("open-widget")!.visible = true;
   }
 
   showCloseWidgetMenu(): void {
+    if (!this.menu) return;
     this.menu.getMenuItemById("open-widget")!.visible = false;
     this.menu.getMenuItemById("close-widget")!.visible = true;
   }
 
   reset(): void {
+    if (!this.menu || !this.tray) return;
     this.menu.getMenuItemById("close-widget")!.visible = false;
     this.menu.getMenuItemById("open-widget")!.visible = false;
     this.tray.setTitle("");
   }
 
   update(reading: Reading, unit: string): void {
+    if (!this.tray) return;
     const glucose = unit === "mmol/l" ? reading.mmol_l : reading.value;
     this.tray.setTitle(
       ` ${glucose === -1 ? "" : ` ${glucose}`} ${reading.trend_arrow}`

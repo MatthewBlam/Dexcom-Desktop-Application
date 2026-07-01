@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { useSettingsContext } from "../contexts/SettingsContext";
 import { AnimatePresence, motion } from "motion/react";
 import { useHistoryContext } from "../contexts/HistoryContext";
-import { Reading, DEFAULT_SETTINGS } from "../shared/types";
+import { Reading } from "../shared/types";
 import { getReadingRange } from "../shared/reading-utils";
 import { GlucoseGraph } from "./GlucoseGraph";
 import { RateOfChange } from "./RateOfChange";
@@ -20,6 +20,7 @@ export interface HistoryProps {
   expanded: boolean;
   onToggleExpanded: () => void;
   connectionStatus: ConnectionStatus;
+  isStale?: boolean;
   className?: string;
 }
 
@@ -31,14 +32,16 @@ const TIME_RANGES = [
   { label: "24h", minutes: 1440 },
 ] as const;
 
-export const History = forwardRef<HTMLDivElement, HistoryProps>(({ className, open, expanded, onToggleExpanded, connectionStatus, ...props }, ref) => {
-  const { sensorSetting, unitSetting, highSetting, lowSetting, highSettingMMOLL, lowSettingMMOLL, criticalLowSetting, criticalLowSettingMMOLL } = useSettingsContext();
+export const History = forwardRef<HTMLDivElement, HistoryProps>(({ className, open, expanded, onToggleExpanded, connectionStatus, isStale, ...props }, ref) => {
+  const { settings: settingsCtx } = useSettingsContext();
   const { historyItems } = useHistoryContext();
   const [timeRange, setTimeRange] = useState(180);
   const [graphHeight, setGraphHeight] = useState(300);
   const [splitPercent, setSplitPercent] = useState(75);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
+  const splitPercentRef = useRef(splitPercent);
+  splitPercentRef.current = splitPercent;
 
   const onHandlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
@@ -56,8 +59,8 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(({ className, op
 
   const onHandlePointerUp = useCallback(() => {
     dragging.current = false;
-    window.api.saveHistorySplit(splitPercent).catch(() => {});
-  }, [splitPercent]);
+    window.api.saveHistorySplit(splitPercentRef.current).catch(() => {});
+  }, []);
 
   useEffect(() => {
     window.api
@@ -76,19 +79,7 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(({ className, op
 
   const latestReading = historyItems.find((r) => r.value !== -1) ?? null;
 
-  const latestValue = latestReading && latestReading.value !== -1 ? (unitSetting === "mg/dl" ? latestReading.value : latestReading.mmol_l) : null;
-
-  const settings = {
-    ...DEFAULT_SETTINGS,
-    sensor: sensorSetting,
-    unit: unitSetting,
-    high: highSetting,
-    low: lowSetting,
-    highMMOLL: highSettingMMOLL,
-    lowMMOLL: lowSettingMMOLL,
-    criticalLow: criticalLowSetting,
-    criticalLowMMOLL: criticalLowSettingMMOLL,
-  };
+  const latestValue = latestReading && latestReading.value !== -1 ? (settingsCtx.unit === "mg/dl" ? latestReading.value : latestReading.mmol_l) : null;
 
   if (!open) return null;
 
@@ -116,8 +107,8 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(({ className, op
             <div className="flex-1" />
             {latestReading && latestReading.value !== -1 && (
               <div className="flex items-center gap-2.5">
-                <ConnectionIndicator status={connectionStatus} />
-                <LastUpdated dateTime={latestReading.date_time as [string, string]} />
+                <ConnectionIndicator status={connectionStatus} isStale={isStale} />
+                <LastUpdated dateTime={latestReading.date_time} />
               </div>
             )}
           </motion.div>
@@ -162,7 +153,7 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(({ className, op
                   setGraphHeight(v);
                   window.api.saveHistoryGraphHeight(v).catch(() => {});
                 }}
-                formatLabel={(v) => String(v)}
+                formatLabel={(v) => settingsCtx.unit === "mg/dl" ? String(v) : String(Math.round((v / 18.018) * 10) / 10)}
               />
             </div>
             <button onClick={onToggleExpanded} className="cursor-pointer appearance-none ml-auto relative inline-flex items-center justify-center size-6 rounded bg-transparent">
@@ -172,7 +163,7 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(({ className, op
           <div ref={containerRef} className="flex-1 min-h-0 flex flex-col" onPointerMove={onHandlePointerMove} onPointerUp={onHandlePointerUp}>
             <div className="relative min-h-30 overflow-hidden [&_*:focus]:outline-none" style={{ height: `${splitPercent}%` }}>
               <div className="absolute inset-0">
-                <GlucoseGraph readings={historyItems} settings={settings} timeRange={timeRange} graphHeight={graphHeight} />
+                <GlucoseGraph readings={historyItems} settings={settingsCtx} timeRange={timeRange} graphHeight={graphHeight} />
               </div>
             </div>
             <div onPointerDown={onHandlePointerDown} className="shrink-0 flex items-center justify-center h-3 cursor-row-resize select-none">
@@ -185,8 +176,8 @@ export const History = forwardRef<HTMLDivElement, HistoryProps>(({ className, op
                 .map((d: Reading) => (
                   <HistoryListItem
                     key={String(d.date_time)}
-                    unit={unitSetting}
-                    value={unitSetting === "mg/dl" ? d.value : d.mmol_l}
+                    unit={settingsCtx.unit}
+                    value={settingsCtx.unit === "mg/dl" ? d.value : d.mmol_l}
                     mgDl={d.value}
                     mmolL={d.mmol_l}
                     trendDescription={d.trend_description}
@@ -216,9 +207,9 @@ export interface HistoryListItemProps extends ComponentProps<"div"> {
 }
 
 export const HistoryListItem = forwardRef<HTMLDivElement, HistoryListItemProps>(({ children, className, unit, value, mgDl, mmolL, trendDescription, trendArrow, time, date, ...props }, ref) => {
-  const { highSetting, lowSetting, highSettingMMOLL, lowSettingMMOLL } = useSettingsContext();
+  const { settings } = useSettingsContext();
 
-  const rangeResult = getReadingRange(String(mgDl), String(mmolL), unit as "mg/dl" | "mmol/l", { high: highSetting, low: lowSetting, highMMOLL: highSettingMMOLL, lowMMOLL: lowSettingMMOLL });
+  const rangeResult = getReadingRange(String(mgDl), String(mmolL), unit as "mg/dl" | "mmol/l", { high: settings.high, low: settings.low, highMMOLL: settings.highMMOLL, lowMMOLL: settings.lowMMOLL });
   const rangeColor = rangeResult === "high" ? "text-dex-yellow" : rangeResult === "low" ? "text-dex-red" : "text-dex-green";
 
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

@@ -2,4 +2,3 @@
 
 declare module "*.css";
 declare module "inter-ui/inter.css";
-declare module "electron-squirrel-startup";

@@ -17,6 +17,15 @@ export class Storage {
 
   constructor() {
     this.data = this.load();
+
+    if (this.data["credentials"]) {
+      delete this.data["credentials"];
+      this.persist();
+    }
+
+    try {
+      fs.chmodSync(CONFIG_PATH, 0o600);
+    } catch {}
   }
 
   private load(): Record<string, any> {
@@ -28,7 +37,7 @@ export class Storage {
   }
 
   private persist(): void {
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(this.data, null, 2));
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(this.data, null, 2), { mode: 0o600 });
   }
 
   private get<T>(key: string, fallback: T): T {
@@ -126,10 +135,15 @@ export class Storage {
     if (!encoded) return undefined;
     try {
       const buffer = Buffer.from(encoded, "base64");
-      if (safeStorage.isEncryptionAvailable()) {
-        return JSON.parse(safeStorage.decryptString(buffer));
+      const raw = safeStorage.isEncryptionAvailable()
+        ? JSON.parse(safeStorage.decryptString(buffer))
+        : JSON.parse(buffer.toString());
+      if ("ous" in raw && !("region" in raw)) {
+        raw.region = raw.ous ? "ous" : "us";
+        delete raw.ous;
+        this.saveCredentials(raw);
       }
-      return JSON.parse(buffer.toString());
+      return raw as Credentials;
     } catch {
       this.remove("credentials_encrypted");
       return undefined;
@@ -137,12 +151,11 @@ export class Storage {
   }
 
   saveCredentials(credentials: Credentials): void {
-    const json = JSON.stringify(credentials);
-    if (safeStorage.isEncryptionAvailable()) {
-      this.set("credentials_encrypted", safeStorage.encryptString(json).toString("base64"));
-    } else {
-      this.set("credentials_encrypted", Buffer.from(json).toString("base64"));
+    if (!safeStorage.isEncryptionAvailable()) {
+      throw new Error("Cannot save credentials: OS encryption is not available");
     }
+    const json = JSON.stringify(credentials);
+    this.set("credentials_encrypted", safeStorage.encryptString(json).toString("base64"));
   }
 
   resetCredentials(): void {

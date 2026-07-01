@@ -5,11 +5,11 @@ import { calculateRateOfChange } from "../shared/reading-utils";
 
 export function RateOfChange() {
     const { historyItems } = useHistoryContext();
-    const { unitSetting } = useSettingsContext();
+    const { settings } = useSettingsContext();
 
     const roc = useMemo(
-        () => calculateRateOfChange(historyItems, unitSetting),
-        [historyItems, unitSetting]
+        () => calculateRateOfChange(historyItems, settings.unit),
+        [historyItems, settings.unit]
     );
 
     if (!roc) return null;
@@ -21,7 +21,7 @@ export function RateOfChange() {
               ? "text-dex-yellow"
               : "text-dex-green";
 
-    const unitLabel = unitSetting === "mg/dl" ? "mg/dL" : "mmol/L";
+    const unitLabel = settings.unit === "mg/dl" ? "mg/dL" : "mmol/L";
 
     return (
         <span className={`text-xs font-medium ${colorClass}`}>

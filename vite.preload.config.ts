@@ -14,7 +14,7 @@ export default defineConfig((env) => {
         input: forgeConfigSelf.entry!,
         output: {
           format: 'cjs',
-          inlineDynamicImports: true,
+          codeSplitting: false,
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',
           assetFileNames: '[name].[ext]',

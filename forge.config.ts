@@ -3,6 +3,7 @@ import { MakerSquirrel } from "@electron-forge/maker-squirrel";
 import { MakerZIP } from "@electron-forge/maker-zip";
 import { MakerDeb } from "@electron-forge/maker-deb";
 import { MakerRpm } from "@electron-forge/maker-rpm";
+import { MakerDMG } from "@electron-forge/maker-dmg";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
@@ -13,11 +14,23 @@ const config: ForgeConfig = {
         icon: "src/graphics/app-icon",
         extraResource: ["src/dexcom"],
         asar: true,
+        extendInfo: {
+            LSApplicationCategoryType: "public.app-category.healthcare-fitness",
+        },
+        ...(process.env.APPLE_ID && {
+            osxSign: {},
+            osxNotarize: {
+                appleId: process.env.APPLE_ID!,
+                appleIdPassword: process.env.APPLE_PASSWORD!,
+                teamId: process.env.APPLE_TEAM_ID!,
+            },
+        }),
     },
     rebuildConfig: {},
     makers: [
         new MakerSquirrel({}),
         new MakerZIP({}, ["darwin"]),
+        new MakerDMG({ format: "ULFO", icon: "src/graphics/app-icon.icns" }),
         new MakerRpm({}),
         new MakerDeb({}),
     ],

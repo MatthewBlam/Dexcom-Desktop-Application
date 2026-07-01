@@ -4,7 +4,7 @@ import "inter-ui/inter.css";
 import { useSettingsContext } from "../contexts/SettingsContext";
 import { DexcomG6, DexcomG7 } from "../components/Dexcom";
 import { motion } from "motion/react";
-import { Reading, Settings, DEFAULT_READING } from "../shared/types";
+import { Reading, DEFAULT_READING } from "../shared/types";
 import { formatReading } from "../shared/reading-utils";
 import { Sparkline } from "../components/Sparkline";
 
@@ -12,44 +12,11 @@ const Widget = () => {
   const [mouseInteractive, setMouseInteractive] = useState(false);
   const [widgetPosition, setWidgetPosition] = useState<{ left: number; top: number } | null>(null);
 
-  const {
-    sensorSetting,
-    setSensorSetting,
-    unitSetting,
-    setUnitSetting,
-    highSetting,
-    setHighSetting,
-    lowSetting,
-    setLowSetting,
-    highSettingMMOLL,
-    setHighSettingMMOLL,
-    lowSettingMMOLL,
-    setLowSettingMMOLL,
-    widgetOpacitySetting,
-    setWidgetOpacitySetting,
-    widgetShowIndicatorSetting,
-    setWidgetShowIndicatorSetting,
-    widgetShowSparklineSetting,
-    setWidgetShowSparklineSetting,
-    widgetOpen,
-    setWidgetOpen,
-  } = useSettingsContext();
-
-  function applySettings(settings: Settings) {
-    setSensorSetting(settings.sensor);
-    setUnitSetting(settings.unit);
-    setHighSetting(settings.high);
-    setLowSetting(settings.low);
-    setHighSettingMMOLL(settings.highMMOLL);
-    setLowSettingMMOLL(settings.lowMMOLL);
-    setWidgetOpacitySetting(settings.widgetOpacity);
-    setWidgetShowIndicatorSetting(settings.widgetShowIndicator);
-    setWidgetShowSparklineSetting(settings.widgetShowSparkline);
-  }
+  const { settings: currentSettings, setSettings } = useSettingsContext();
 
   const widgetPixelSize = 125;
 
-  const G7theme = sensorSetting === "G7";
+  const G7theme = currentSettings.sensor === "G7";
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -81,8 +48,8 @@ const Widget = () => {
       .catch(() => {});
     window.api
       .getSettings()
-      .then((settings) => {
-        applySettings(settings);
+      .then((s) => {
+        setSettings(s);
       })
       .catch(() => {});
     window.api
@@ -94,8 +61,8 @@ const Widget = () => {
     window.api.setIgnoreMouseEvents(true, { forward: true }).catch(() => {});
 
     const unsubs = [
-      window.api.onSettings((settings) => {
-        applySettings(settings);
+      window.api.onSettings((s) => {
+        setSettings(s);
       }),
       window.api.onReading((r) => {
         setReading(r);
@@ -150,15 +117,15 @@ const Widget = () => {
                 left: widgetPosition.left,
                 top: widgetPosition.top,
                 width: widgetPixelSize,
-                opacity: widgetOpacitySetting,
+                opacity: currentSettings.widgetOpacity,
               }}
               onDragEnd={savePosition}>
-              {widgetShowIndicatorSetting && (
+              {currentSettings.widgetShowIndicator && (
                 <div style={{ width: widgetPixelSize, height: widgetPixelSize }}>
                   {G7theme ? <DexcomG7 trend={trend} mg_dl={String(mg_dl)} mmol_l={String(mmol_l)}></DexcomG7> : <DexcomG6 trend={trend} mg_dl={String(mg_dl)} mmol_l={String(mmol_l)}></DexcomG6>}
                 </div>
               )}
-              {widgetShowSparklineSetting && (
+              {currentSettings.widgetShowSparkline && (
                 <div className="mt-2 rounded-lg px-3 py-3 pointer-events-none bg-white shadow-md">
                   <Sparkline readings={readings} width={widgetPixelSize - 24} height={24} />
                 </div>
