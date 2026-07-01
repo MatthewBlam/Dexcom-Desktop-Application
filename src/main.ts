@@ -190,10 +190,31 @@ registerIpcHandlers({
 
 // --- Power management ---
 
+let lastBackfillTime = 0;
+
+async function handleResume() {
+  if (!Python) return;
+  await Python.resume();
+
+  const now = Date.now();
+  if (now - lastBackfillTime < 5000) return;
+  lastBackfillTime = now;
+
+  Python.getHistory(1440)
+    .then((readings) => {
+      recentReadings = readings;
+      pushToRenderer(PushChannels.HISTORY_BACKFILL, readings);
+      pushToWidget(PushChannels.HISTORY_BACKFILL, readings);
+    })
+    .catch((err) => {
+      dataLog.error("Failed to fetch resume backfill:", err);
+    });
+}
+
 powerMonitor.on("suspend", () => Python?.pause());
-powerMonitor.on("resume", () => Python?.resume());
+powerMonitor.on("resume", () => handleResume());
 powerMonitor.on("lock-screen", () => Python?.pause());
-powerMonitor.on("unlock-screen", () => Python?.resume());
+powerMonitor.on("unlock-screen", () => handleResume());
 
 // --- App lifecycle ---
 

@@ -14,7 +14,7 @@
   </p>
 </div>
 
-[![DexcomDesktopApplication Image][app-image]](https://github.com/MatthewBlam/Dexcom-Desktop-Application)
+<video src="Dexcom-macOS-Demo.mp4" autoplay loop muted playsinline></video>
 
 ## Architecture
 
@@ -32,6 +32,7 @@ src/
     tray.ts                #   System tray management
     menu.ts                #   Native menu template
     logger.ts              #   Rotating file logger (electron-log)
+    launch-agent.ts        #   macOS LaunchAgent login item management
   shared/                  # Shared between main & renderer
     types.ts               #   Domain types (Reading, Settings, Credentials)
     ipc-channels.ts        #   Typed IPC channel constants
@@ -50,6 +51,7 @@ src/
   __tests__/               # Vitest + React Testing Library
 
 python/
+  entry.py                 # PyInstaller entry point
   dexcom_server/
     main.py                # FastAPI app (HTTP + WebSocket)
     glucose_service.py     # Async glucose polling via pydexcom
@@ -66,7 +68,7 @@ python/
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 18
+- [Node.js](https://nodejs.org/) >= 18, < 24
 - [Python](https://www.python.org/) >= 3.12
 - npm
 
@@ -115,6 +117,3 @@ This compiles the Python backend with PyInstaller and packages the Electron app.
 | Testing           | Vitest, React Testing Library, pytest           |
 | Linting           | ESLint 10 (flat config), typescript-eslint      |
 
-<!-- MARKDOWN LINKS & IMAGES -->
-
-[app-image]: dexcom_app.png
