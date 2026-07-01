@@ -58,7 +58,7 @@ const trendVariantsG6 = (variant: Trend) => {
 };
 
 export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(({ trend, mg_dl, mmol_l, children, className, ...props }, ref) => {
-  const { unitSetting, highSetting, lowSetting, highSettingMMOLL, lowSettingMMOLL } = useSettingsContext();
+  const { settings } = useSettingsContext();
 
   const mgNum = mg_dl === "--" ? -1 : Number(mg_dl);
   const mmolNum = mmol_l === "--" ? -1 : Number(mmol_l);
@@ -67,11 +67,11 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(({ trend, mg_dl,
   const displayMg = animatedMg === -1 ? "--" : String(Math.round(animatedMg));
   const displayMmol = animatedMmol === -1 ? "--" : animatedMmol.toFixed(1);
 
-  const range = getReadingRange(mg_dl, mmol_l, unitSetting, {
-    high: highSetting,
-    low: lowSetting,
-    highMMOLL: highSettingMMOLL,
-    lowMMOLL: lowSettingMMOLL,
+  const range = getReadingRange(mg_dl, mmol_l, settings.unit, {
+    high: settings.high,
+    low: settings.low,
+    highMMOLL: settings.highMMOLL,
+    lowMMOLL: settings.lowMMOLL,
   });
   const circleColor = range === "low" ? "var(--color-dex-red)" : range === "high" ? "var(--color-dex-yellow)" : "var(--color-dex-g6-circle-normal)";
   const textColor = range === "low" ? "text-white" : "text-dex-text-dark";
@@ -135,10 +135,10 @@ export const DexcomG6 = forwardRef<HTMLDivElement, DexcomProps>(({ trend, mg_dl,
         </div>
         <div id="dexcom_text" className="text-center select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[50%]">
           <div id="reading" className={twMerge("text-[86px] font-medium mt-[-6px] text-nowrap", textColor)}>
-            {unitSetting === "mg/dl" ? displayMg : displayMmol}
+            {settings.unit === "mg/dl" ? displayMg : displayMmol}
           </div>
           <div id="unit" className={twMerge(variant.hidden ? "opacity-0" : "opacity-100", textColor, "text-[24px] font-medium mt-[-20px] text-nowrap")}>
-            {unitSetting === "mg/dl" ? "mg/dL" : "mmol/L"}
+            {settings.unit === "mg/dl" ? "mg/dL" : "mmol/L"}
           </div>
         </div>
       </div>
@@ -201,7 +201,7 @@ const trendVariantsG7 = (variant: Trend) => {
 };
 
 export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(({ trend, mg_dl, mmol_l, children, className, ...props }, ref) => {
-  const { unitSetting, highSetting, lowSetting, highSettingMMOLL, lowSettingMMOLL } = useSettingsContext();
+  const { settings } = useSettingsContext();
 
   const mgNum = mg_dl === "--" ? -1 : Number(mg_dl);
   const mmolNum = mmol_l === "--" ? -1 : Number(mmol_l);
@@ -210,11 +210,11 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(({ trend, mg_dl,
   const displayMg = animatedMg === -1 ? "--" : String(Math.round(animatedMg));
   const displayMmol = animatedMmol === -1 ? "--" : animatedMmol.toFixed(1);
 
-  const range = getReadingRange(mg_dl, mmol_l, unitSetting, {
-    high: highSetting,
-    low: lowSetting,
-    highMMOLL: highSettingMMOLL,
-    lowMMOLL: lowSettingMMOLL,
+  const range = getReadingRange(mg_dl, mmol_l, settings.unit, {
+    high: settings.high,
+    low: settings.low,
+    highMMOLL: settings.highMMOLL,
+    lowMMOLL: settings.lowMMOLL,
   });
   const circleColor = range === "low" ? "var(--color-dex-red)" : range === "high" ? "var(--color-dex-yellow)" : "var(--color-dex-bg)";
   const textColor = range === "low" ? "text-white" : "text-dex-text-dark";
@@ -282,10 +282,10 @@ export const DexcomG7 = forwardRef<HTMLDivElement, DexcomProps>(({ trend, mg_dl,
         </div>
         <div id="dexcom_text" className="text-center select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[50%]">
           <div id="reading" className={twMerge(textColor, "text-[84px] font-medium mt-[-5px] text-nowrap")}>
-            {unitSetting === "mg/dl" ? displayMg : displayMmol}
+            {settings.unit === "mg/dl" ? displayMg : displayMmol}
           </div>
           <div id="unit" className={twMerge(unitTextColor, variant.hidden ? "opacity-0" : "opacity-100", "text-[24px] font-medium mt-[-19px] text-nowrap")}>
-            {unitSetting === "mg/dl" ? "mg/dL" : "mmol/L"}
+            {settings.unit === "mg/dl" ? "mg/dL" : "mmol/L"}
           </div>
         </div>
       </div>

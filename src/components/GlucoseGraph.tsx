@@ -8,6 +8,7 @@ import {
     ReferenceLine,
     ReferenceArea,
     Dot,
+    Tooltip,
 } from "recharts";
 import { Reading, Settings } from "../shared/types";
 import { parseReadingDateTime } from "../shared/reading-utils";
@@ -38,28 +39,34 @@ function CustomDot(props: any) {
 }
 
 export function GlucoseGraph({ readings, settings, timeRange, graphHeight }: GlucoseGraphProps) {
-    const now = Date.now();
-    const cutoff = now - timeRange * 60 * 1000;
-
-    const data = useMemo<DataPoint[]>(() => {
+    const { data, maxValue, now, cutoff } = useMemo(() => {
+        const now = Date.now();
+        const cutoff = now - timeRange * 60 * 1000;
         const isMgDl = settings.unit === "mg/dl";
         const high = isMgDl ? settings.high : settings.highMMOLL;
         const low = isMgDl ? settings.low : settings.lowMMOLL;
+        const valueFloor = isMgDl ? 40 : 2.0;
+        const valueCap = isMgDl ? 400 : Math.round((400 / 18.018) * 10) / 10;
 
-        return readings
+        const data = readings
             .filter((r) => r.value !== -1)
             .map((r) => {
-                const date = parseReadingDateTime(r.date_time as [string, string]);
+                const date = parseReadingDateTime(r.date_time);
                 if (!date) return null;
                 const time = date.getTime();
                 if (time < cutoff) return null;
-                const value = isMgDl ? r.value : r.mmol_l;
+                const rawValue = isMgDl ? r.value : r.mmol_l;
+                const value = Math.max(Math.min(rawValue, valueCap), valueFloor);
                 const range = value >= high ? "high" : value <= low ? "low" : "normal";
                 return { time, value, range } as DataPoint;
             })
             .filter(Boolean)
             .sort((a, b) => a!.time - b!.time) as DataPoint[];
-    }, [readings, settings, cutoff]);
+
+        const maxValue = data.length > 0 ? Math.max(...data.map((d) => d.value)) : 0;
+
+        return { data, maxValue, now, cutoff };
+    }, [readings, settings, timeRange]);
 
     const isMgDl = settings.unit === "mg/dl";
     const high = isMgDl ? settings.high : settings.highMMOLL;
@@ -67,7 +74,31 @@ export function GlucoseGraph({ readings, settings, timeRange, graphHeight }: Glu
     const criticalLow = isMgDl ? settings.criticalLow : settings.criticalLowMMOLL;
 
     const yMin = isMgDl ? 40 : 2.0;
-    const yMax = isMgDl ? graphHeight : Math.round((graphHeight / 18.018) * 10) / 10;
+    const yMaxSetting = isMgDl ? graphHeight : Math.round((graphHeight / 18.018) * 10) / 10;
+    const yMax = Math.max(yMaxSetting, maxValue);
+    const unitLabel = isMgDl ? "mg/dL" : "mmol/L";
+
+    function CustomTooltip({ active, payload }: any) {
+        if (!active || !payload?.length) return null;
+        const point = payload[0].payload as DataPoint;
+        const color =
+            point.range === "high"
+                ? "var(--color-dex-yellow)"
+                : point.range === "low"
+                  ? "var(--color-dex-red)"
+                  : "var(--color-dex-green)";
+        const timeStr = new Date(point.time).toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+        });
+        return (
+            <div className="bg-dex-text text-dex-bg text-[10px] font-medium px-2 py-1 rounded whitespace-nowrap">
+                <span style={{ color }}>{point.value}</span>
+                <span className="ml-0.5 text-dex-fg-dark">{unitLabel}</span>
+                <span className="ml-1.5 text-dex-fg-dark">{timeStr}</span>
+            </div>
+        );
+    }
 
     if (data.length === 0) {
         return (
@@ -96,6 +127,11 @@ export function GlucoseGraph({ readings, settings, timeRange, graphHeight }: Glu
                     tick={{ fontSize: 10, fill: "var(--color-dex-text-muted)" }}
                     tickLine={false}
                     axisLine={false}
+                />
+                <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={false}
+                    isAnimationActive={false}
                 />
                 <ReferenceArea y1={low} y2={high} fill="var(--color-dex-green)" fillOpacity={0.06} />
                 <ReferenceArea y1={high} y2={yMax} fill="var(--color-dex-yellow)" fillOpacity={0.06} />

@@ -1,5 +1,10 @@
-from .main import main
-
+import argparse
 import asyncio
 
-asyncio.run(main())
+from .main import main
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--secret", default=None)
+args = parser.parse_args()
+
+asyncio.run(main(secret=args.secret))

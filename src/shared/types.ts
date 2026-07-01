@@ -16,7 +16,8 @@ export interface Reading {
     trend_direction: string;
     trend_description: string;
     trend_arrow: string;
-    date_time: Array<string>;
+    date_time: [string, string];
+    trend_reliable: boolean;
 }
 
 export interface Settings {
@@ -34,12 +35,12 @@ export interface Settings {
     widgetShowSparkline: boolean;
 }
 
-export type ConnectionStatus = "connected" | "reconnecting" | "disconnected";
+export type ConnectionStatus = "connected" | "reconnecting" | "disconnected" | "error";
 
 export interface Credentials {
     user: string;
     password: string;
-    ous: boolean;
+    region: "us" | "ous" | "jp";
 }
 
 export interface WindowBounds {
@@ -56,6 +57,7 @@ export const DEFAULT_READING: Reading = {
     trend_description: "Unavailable",
     trend_arrow: "Unavailable",
     date_time: ["Unavailable", "Unavailable"],
+    trend_reliable: false,
 };
 
 export const DEFAULT_SETTINGS: Settings = {

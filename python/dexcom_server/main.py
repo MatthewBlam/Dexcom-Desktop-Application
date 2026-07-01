@@ -1,10 +1,13 @@
 import asyncio
 import json
+import os
 import signal
 import sys
 
 import uvicorn
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
 
 from .glucose_service import GlucoseService
 from .models import GlucoseReading, HealthResponse, LoginRequest
@@ -12,6 +15,24 @@ from .models import GlucoseReading, HealthResponse, LoginRequest
 app = FastAPI()
 service = GlucoseService()
 ws_clients: set[WebSocket] = set()
+_secret: str | None = None
+
+
+class SecretMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if _secret:
+            auth = request.headers.get("authorization", "")
+            if auth != f"Bearer {_secret}":
+                return JSONResponse(status_code=403, content={"detail": "Forbidden"})
+        return await call_next(request)
+
+
+app.add_middleware(SecretMiddleware)
+
+
+def configure_secret(secret: str) -> None:
+    global _secret
+    _secret = secret
 
 
 async def broadcast_reading(reading: GlucoseReading) -> None:
@@ -52,7 +73,7 @@ async def login(req: LoginRequest) -> dict[str, str]:
     try:
         await service.login(req.username, req.password, req.region)
     except Exception as e:
-        return {"status": "error", "error": str(e)}
+        raise HTTPException(status_code=401, detail=str(e))
     await service.start_polling()
     return {"status": "ok"}
 
@@ -83,11 +104,16 @@ async def shutdown() -> dict[str, str]:
 
 
 def _force_exit() -> None:
-    sys.exit(0)
+    os._exit(0)
 
 
 @app.websocket("/ws/glucose")
 async def glucose_ws(ws: WebSocket) -> None:
+    if _secret:
+        token = ws.query_params.get("token", "")
+        if token != _secret:
+            await ws.close(code=1008)
+            return
     await ws.accept()
     ws_clients.add(ws)
     try:
@@ -99,8 +125,19 @@ async def glucose_ws(ws: WebSocket) -> None:
         ws_clients.discard(ws)
 
 
-async def main() -> None:
-    config = uvicorn.Config(app, host="127.0.0.1", port=0, log_level="warning")
+async def main(secret: str | None = None) -> None:
+    if secret:
+        configure_secret(secret)
+
+    config = uvicorn.Config(
+        app,
+        host="127.0.0.1",
+        port=0,
+        log_level="warning",
+        loop="asyncio",
+        http="h11",
+        ws="websockets",
+    )
     server = uvicorn.Server(config)
 
     if not config.loaded:

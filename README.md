@@ -11,7 +11,6 @@
     <br />
     <br />
     Download here: <a href="https://github.com/MatthewBlam/Dexcom-Desktop-Application/releases/tag/v1.0.0">v1.0.0</a>
-    <br /> (^ outdated - for newest version build from source)
   </p>
 </div>
 
@@ -32,25 +31,30 @@ src/
     storage.ts             #   Settings + encrypted credential storage
     tray.ts                #   System tray management
     menu.ts                #   Native menu template
+    logger.ts              #   Rotating file logger (electron-log)
   shared/                  # Shared between main & renderer
     types.ts               #   Domain types (Reading, Settings, Credentials)
     ipc-channels.ts        #   Typed IPC channel constants
     reading-utils.ts       #   Reading formatting + range utilities
     preload.d.ts           #   Window.api type declarations
-  main/                    # Main renderer (login + display)
+  renderer/                # Main renderer (login + display)
     App.tsx, Login.tsx, Display.tsx
   widget/                  # Floating widget renderer
     Widget.tsx
   components/              # Shared React components
-    Dexcom.tsx, History.tsx, Settings.tsx, ...
+    Dexcom.tsx, History.tsx, GlucoseGraph.tsx, Settings.tsx, ...
   contexts/                # React contexts
     SettingsContext.tsx, HistoryContext.tsx
+  hooks/                   # Custom React hooks
+    useAuth.ts, useConnectionManager.ts, useSettingsManager.ts, ...
+  __tests__/               # Vitest + React Testing Library
 
 python/
   dexcom_server/
     main.py                # FastAPI app (HTTP + WebSocket)
     glucose_service.py     # Async glucose polling via pydexcom
     models.py              # Pydantic models
+  tests/                   # pytest tests
   requirements.txt
 ```
 
@@ -90,27 +94,26 @@ This compiles the Python backend with PyInstaller and packages the Electron app.
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start dev mode with hot reload |
-| `npm run lint` | Run ESLint |
-| `npm run build:python` | Compile Python backend binary |
-| `npm run package` | Build + package (no installer) |
-| `npm run make` | Build + create distributable |
+| Command                | Description                    |
+| ---------------------- | ------------------------------ |
+| `npm start`            | Start dev mode with hot reload |
+| `npm test`             | Run tests (Vitest)             |
+| `npm run test:watch`   | Run tests in watch mode        |
+| `npm run lint`         | Run ESLint                     |
+| `npm run build:python` | Compile Python backend binary  |
+| `npm run package`      | Build + package (no installer) |
+| `npm run make`         | Build + create distributable   |
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Desktop framework | Electron 42 |
-| Frontend | React 19, Tailwind CSS 4, Motion 12 |
-| Build | Vite 8, TypeScript 6, Electron Forge 7 |
-| Backend | FastAPI, uvicorn, pydexcom |
-| Linting | ESLint 10 (flat config), typescript-eslint |
-
-## Contact
-
-Matthew Blam - blammatthew@gmail.com
+| Layer             | Technology                                      |
+| ----------------- | ----------------------------------------------- |
+| Desktop framework | Electron 42                                     |
+| Frontend          | React 19, Tailwind CSS 4, Recharts 3, Motion 12 |
+| Build             | Vite 8, TypeScript 6, Electron Forge 7          |
+| Backend           | FastAPI, uvicorn, pydexcom                      |
+| Testing           | Vitest, React Testing Library, pytest           |
+| Linting           | ESLint 10 (flat config), typescript-eslint      |
 
 <!-- MARKDOWN LINKS & IMAGES -->
 

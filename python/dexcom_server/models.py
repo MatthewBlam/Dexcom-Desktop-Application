@@ -16,6 +16,7 @@ class GlucoseReading(BaseModel):
     trend_description: str
     trend_arrow: str
     date_time: list[str]
+    trend_reliable: bool = True
 
 
 class HealthResponse(BaseModel):

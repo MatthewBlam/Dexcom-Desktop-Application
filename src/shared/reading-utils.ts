@@ -66,8 +66,8 @@ export function calculateRateOfChange(
 
     if (newest.value === -1 || previous.value === -1) return null;
 
-    const newestDate = parseReadingDateTime(newest.date_time as [string, string]);
-    const previousDate = parseReadingDateTime(previous.date_time as [string, string]);
+    const newestDate = parseReadingDateTime(newest.date_time);
+    const previousDate = parseReadingDateTime(previous.date_time);
     if (!newestDate || !previousDate) return null;
 
     const deltaMinutes = (newestDate.getTime() - previousDate.getTime()) / 60000;

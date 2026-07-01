@@ -88,5 +88,11 @@ typings/
 # Vite
 .vite/
 
+# Python build artifacts
+python/dist/
+python/build/
+python/dexcom.spec
+__pycache__/
+
 # Electron-Forge
 out/

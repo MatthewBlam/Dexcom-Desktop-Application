@@ -10,8 +10,7 @@ interface SparklineProps {
 }
 
 export function Sparkline({ readings, width = 120, height = 30 }: SparklineProps) {
-    const { unitSetting, highSetting, lowSetting, highSettingMMOLL, lowSettingMMOLL } =
-        useSettingsContext();
+    const { settings } = useSettingsContext();
 
     const points = useMemo(() => {
         const valid = readings
@@ -21,7 +20,7 @@ export function Sparkline({ readings, width = 120, height = 30 }: SparklineProps
         if (valid.length < 2) return null;
 
         const values = valid.map((r) =>
-            unitSetting === "mg/dl" ? r.value : r.mmol_l
+            settings.unit === "mg/dl" ? r.value : r.mmol_l
         );
         const min = Math.min(...values);
         const max = Math.max(...values);
@@ -31,18 +30,18 @@ export function Sparkline({ readings, width = 120, height = 30 }: SparklineProps
         const innerH = height - padding * 2;
 
         return valid.map((r, i) => {
-            const val = unitSetting === "mg/dl" ? r.value : r.mmol_l;
+            const val = settings.unit === "mg/dl" ? r.value : r.mmol_l;
             const x = padding + (i / (valid.length - 1)) * innerW;
             const y = padding + innerH - ((val - min) / range) * innerH;
             const rangeResult = getReadingRange(
                 String(r.value),
                 String(r.mmol_l),
-                unitSetting,
-                { high: highSetting, low: lowSetting, highMMOLL: highSettingMMOLL, lowMMOLL: lowSettingMMOLL }
+                settings.unit,
+                { high: settings.high, low: settings.low, highMMOLL: settings.highMMOLL, lowMMOLL: settings.lowMMOLL }
             );
             return { x, y, range: rangeResult };
         });
-    }, [readings, unitSetting, highSetting, lowSetting, highSettingMMOLL, lowSettingMMOLL, width, height]);
+    }, [readings, settings, width, height]);
 
     if (!points) return null;
 
