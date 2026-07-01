@@ -14,7 +14,7 @@
   </p>
 </div>
 
-<video src="dexcom-macos-demo.mp4" autoplay loop muted playsinline></video>
+<video src="https://github.com/MatthewBlam/Dexcom-macOS/blob/main/dexcom-macos-demo.mp4" autoplay loop muted playsinline></video>
 
 ## Architecture
 
